@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - "4997:5000"
+  web:
+    build:
+      context: ./web
+    ports:
+      - "4998:3000"
+    environment:
+      - REACT_APP_SERVER_URL=http://localhost:4997
