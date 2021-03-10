@@ -27,26 +27,7 @@ def predict_route():
 
     # Process text with labels...
     labels = content['labels'].split(';')
-    return jsonify([{'label': 'test',
-      'score': 1.2366091944277287,
-      'terms': [{'paths': [['space', 'label']], 'score': 1.0},
-       {'paths': [['star', 'locatedat', 'space']], 'score': 0.18517242},
-       {'paths': [['love', 'isa', 'television_show'],
-         ['television_show', 'isa', 'space']],
-        'score': 0.05143677}]},
-     {'label': 'technology',
-      'score': 0.1451974897645414,
-      'terms': [{'paths': [['space', 'relatedto', 'science_fiction'],
-         ['science_fiction', 'relatedto', 'technology']],
-        'score': 0.14295651},
-       {'paths': [['love', 'relatedto', 'technophilia'],
-         ['technophilia', 'relatedto', 'technology']],
-        'score': 0.0022409796}]},
-     {'label': 'medicine',
-      'score': 0.05455923452973366,
-      'terms': [{'paths': [['space', 'relatedto', 'science'],
-         ['science', 'relatedto', 'medicine']],
-        'score': 0.054559235}]}])
+
     # Process text with labels
     response = predict(text, labels)
 
