@@ -56,3 +56,6 @@ def predict_route():
 
     # Return the output as a JSON string
     return jsonify(response)
+
+if __name__ == '__main__':
+    app.run(debug=True)
