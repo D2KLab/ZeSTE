@@ -1,6 +1,8 @@
 click==7.1.2
+fast-autocomplete==0.7.1
 Flask==1.1.2
 Flask-Cors==3.0.10
+install==1.3.4
 itsdangerous==1.1.0
 Jinja2==2.11.3
 joblib==1.0.1

@@ -1,18 +1,41 @@
+from fast_autocomplete import AutoComplete
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 from zeste import predict
+import os
 
 
 def do_things_to_external_uri(uri):
     # To be done later
     pass
 
+
+print('Loading autocomplete vocabulary...')
+words = {}
+vocab_filepath = '/data/zeste_cache/vocab.txt'
+if os.path.exists(vocab_filepath):
+    vocab_file = open(vocab_filepath, 'r')
+    lines = vocab_file.readlines()
+    for line in lines:
+        words[line.strip()] = {}
+autocomplete = AutoComplete(words=words)
+
+print('Starting web server...')
 app = Flask(__name__)
 cors = CORS(app)
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
+
+
+@app.route('/autocomplete', methods=['GET'])
+@cross_origin()
+def autocomplete_route():
+    q = request.args.get('q')
+    suggestions = autocomplete.search(word=q, max_cost=3, size=7)
+    return jsonify(suggestions)
+
 
 @app.route('/predict', methods=['POST'])
 @cross_origin()
