@@ -69,6 +69,11 @@ padding: 8px;
 const Results = styled.div`
 flex: 0.5;
 padding: 1rem 2rem;
+
+pre {
+  overflow: auto;
+  max-width: 250px;
+}
 `;
 
 const Confidence = styled.span`
@@ -147,15 +152,6 @@ const datasets = [
   },
 ];
 
-const predefinedLabels = [
-  {
-    name: 'economy',
-  },
-  {
-    name: 'economics'
-  }
-];
-
 const typesLabels = {
   'label': 'the label',
   'locatedat': 'located at',
@@ -163,14 +159,6 @@ const typesLabels = {
   'relatedto': 'related to',
 }
 
-const getSuggestions = value => {
-  const inputValue = value.trim().toLowerCase();
-  const inputLength = inputValue.length;
-
-  return inputLength === 0 ? [] : predefinedLabels.filter(item =>
-    item.name.toLowerCase().slice(0, inputLength) === inputValue
-  );
-};
 const getSuggestionValue = suggestion => suggestion.name;
 const renderSuggestion = suggestion => (
   <div>
@@ -194,40 +182,60 @@ function App() {
   const [ predictions, setPredictions ] = useState([]);
   const [ inputText, setInputText ] = useState('A NASA spacecraft set a new milestone Monday in cosmic exploration by entering orbit around an asteroid, Bennu, the smallest object ever to be circled by a human-made spaceship. The spacecraft, called OSIRIS-REx, is the first-ever US mission designed to visit an asteroid and return a sample of its dust back to Earth..');
   const [ inputLabel, setInputLabel ] = useState('');
+  const [ inputCustomLabel, setInputCustomLabel ] = useState('');
   const [ userLabels, setUserLabels ] = useState([]);
+  const [ userCustomLabels, setUserCustomLabels ] = useState([]);
+  const [ error, setError ] = useState(null);
 
-  const onChange = (event, { newValue }) => {
-    setInputLabel(newValue);
-  };
-  const onSuggestionsFetchRequested = ({ value }) => {
-    setSuggestions(getSuggestions(value));
+  const onSuggestionsFetchRequested = async ({ value }) => {
+    const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/autocomplete?q=${encodeURIComponent(value)}`)).json();
+    const suggestions = data.map(item => ({ name: item[0] }));
+    setSuggestions(suggestions);
   };
   const onSuggestionsClearRequested = () => {
     setSuggestions([]);
   };
+  const onSuggestionSelected = (ev, { suggestionValue }) => {
+    if (suggestionValue.length > 0) {
+      setUserLabels([...userLabels, suggestionValue]);
+    }
+    setInputLabel('');
+  }
 
   const inputProps = {
-    placeholder: 'economy',
+    placeholder: 'cinema',
     value: inputLabel,
-    onChange
+    onChange: (event, { newValue }) => {
+      setInputLabel(newValue);
+    }
   };
 
   const predict = async () => {
     setPredictions([]);
     setIsLoading(true);
-    const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/predict`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        text: inputText,
-        labels: userLabels.join(';'),
-      })
-    })).json();
+    setError(null);
+
+    let data;
+    try {
+      data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/predict`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: inputText,
+          labels: [...userLabels, ...userCustomLabels].join(';'),
+        })
+      })).json();
+    } catch (err) {
+      console.error(err);
+      setError(err.toString());
+    } finally {
+      setIsLoading(false);
+    }
+
     setPredictions(data);
-    setIsLoading(false);
   };
 
   const handleAddLabel = (ev) => {
@@ -239,10 +247,25 @@ function App() {
     ev.preventDefault();
   };
 
+  const handleAddCustomLabel = (ev) => {
+    const label = inputCustomLabel.replace(';', '');
+    if (label.length > 0) {
+      setUserCustomLabels([...userCustomLabels, label]);
+    }
+    setInputCustomLabel('');
+    ev.preventDefault();
+  }
+
   const deleteLabel = (index) => {
     const newLabels = userLabels.slice();
     newLabels.splice(index, 1);
     setUserLabels(newLabels);
+  };
+
+  const deleteCustomLabel = (index) => {
+    const newCustomLabels = userCustomLabels.slice();
+    newCustomLabels.splice(index, 1);
+    setUserCustomLabels(newCustomLabels);
   };
 
   return (
@@ -270,32 +293,27 @@ function App() {
 
           <div>
             <div>
-              <h2>Select labels dataset</h2>
+              <h2>Select labels from an existing dataset</h2>
             </div>
-            <select>
-              {datasets.map(item => (
-                <option value={item.name}>{item.name}</option>
-              ))}
-            </select>
-          </div>
 
-          <div>
-            <div>
-              <h2>Add labels</h2>
-            </div>
-            <div>
-              <form onSubmit={handleAddLabel} style={{ display: 'flex' }}>
-                <Autosuggest
-                  suggestions={suggestions}
-                  onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-                  onSuggestionsClearRequested={onSuggestionsClearRequested}
-                  getSuggestionValue={getSuggestionValue}
-                  renderSuggestion={renderSuggestion}
-                  inputProps={inputProps}
-                />
-                <button type="submit" style={{ flex: '0' }} onClick={handleAddLabel}>&nbsp;+&nbsp;</button>
-              </form>
-            </div>
+            <form onSubmit={handleAddLabel} style={{ display: 'flex' }}>
+              <select style={{ marginRight: '1em' }}>
+                {datasets.map(item => (
+                  <option value={item.name}>{item.name}</option>
+                ))}
+              </select>
+              <Autosuggest
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={onSuggestionsClearRequested}
+                onSuggestionSelected={onSuggestionSelected}
+                getSuggestionValue={getSuggestionValue}
+                renderSuggestion={renderSuggestion}
+                inputProps={inputProps}
+              />
+              <button type="submit" style={{ flex: '0' }} onClick={handleAddLabel}>&nbsp;+&nbsp;</button>
+            </form>
+
             <div>
               <ul>
                 {userLabels.map((label, i) => (
@@ -305,16 +323,42 @@ function App() {
             </div>
           </div>
 
+          <div>
+            <div>
+              <h2>Or add your own labels</h2>
+            </div>
+
+            <form onSubmit={handleAddCustomLabel} style={{ display: 'flex' }}>
+              <input type="text" value={inputCustomLabel} onChange={(ev) => setInputCustomLabel(ev.target.value)} />
+              <button type="submit" style={{ flex: '0' }} onClick={handleAddCustomLabel}>&nbsp;+&nbsp;</button>
+            </form>
+
+            <div>
+              <ul>
+                {userCustomLabels.map((label, i) => (
+                  <li><button onClick={() => deleteCustomLabel(i)} style={{ fontSize:'0.6rem', display:'inline-block' }}>x</button> {label}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
           <br />
           <button onClick={predict} disabled={isLoading}>Predict The Topics</button>
         </Form>
 
-        {(isLoading || predictions.length > 0) && (
+        {(isLoading || error !== null || predictions.length > 0) && (
           <Results>
             {isLoading && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
                 <div><Lemon /></div>
                 <p><em>Squeezing some lemons...</em></p>
+              </div>
+            )}
+            {error !== null && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
+                <h2>Uh-oh</h2>
+                <p>Something wrong happened 😕</p>
+                <pre>{error}</pre>
               </div>
             )}
             {Array.isArray(predictions) && predictions.length > 0 && (
