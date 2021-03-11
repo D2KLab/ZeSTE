@@ -5,7 +5,11 @@ import logging
 from flask import jsonify
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import nltk
 
+
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 numberbatch = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08-en.pickle", 'rb'))
 
@@ -18,7 +22,6 @@ if os.path.exists(relations_filepath):
     for line in lines:
         items = line.strip().split('\t')
         relations[items[0].strip()] = items[1].strip()
-
 
 def preprocess(doc):
     lemmatizer = WordNetLemmatizer()
