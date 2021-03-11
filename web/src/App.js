@@ -375,20 +375,22 @@ function App() {
                   </div>
                 </div>
 
-                <div>
+                {predictions.length > 1 && (
                   <div>
-                    <h2>The other possible topics with their explanation for this document are:</h2>
+                    <div>
+                      <h2>The other possible topics with their explanation for this document are:</h2>
+                    </div>
+                    <div>
+                      {predictions.slice(1).map(item => {
+                        return (
+                          <div>
+                            <div><Label title={item.label}>{item.label}</Label> Confidence: {(item.score * 100).toFixed(2)}% <a href="#">(see explanation)</a></div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div>
-                    {predictions.slice(1).map(item => {
-                      return (
-                        <div>
-                          <div><Label title={item.label}>{item.label}</Label> Confidence: {(item.score * 100).toFixed(2)}% <a href="#">(see explanation)</a></div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                )}
               </>
             )}
           </Results>
