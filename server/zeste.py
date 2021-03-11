@@ -116,15 +116,15 @@ def get_document_score_and_explain(doc, label, label_neighborhood):
 def generate_json(explanation):
     response = []
     for label in explanation:
-        d = {'label': label, 'score': str(explanation[label][0]), 'terms':[]}
+        d = {'label': label, 'score': explanation[label][0], 'terms':[]}
 
         for path, score in explanation[label][1]:
             if len(path) == 2:
-                d['terms'].append({'paths':[[label, "label"]], 'score': str(score)})
+                d['terms'].append({'paths':[[label, "label"]], 'score': score})
             elif len(path) == 3:
-                d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]]], 'score': str(score)})
+                d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]]], 'score': score})
             elif len(path) == 5:
-                d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': str(score)})
+                d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': score})
 
         response.append(d)
     return response
