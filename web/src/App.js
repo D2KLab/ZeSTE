@@ -152,13 +152,6 @@ const datasets = [
   },
 ];
 
-const typesLabels = {
-  'label': 'the label',
-  'locatedat': 'located at',
-  'isa': 'a',
-  'relatedto': 'related to',
-}
-
 const getSuggestionValue = suggestion => suggestion.name;
 const renderSuggestion = suggestion => (
   <div>
@@ -169,9 +162,7 @@ const renderSuggestion = suggestion => (
 const generateExplanations = (paths) => {
   const lis = [];
   paths.forEach((path, i) => {
-    const type = path[1];
-    const typeLabel = typesLabels[type];
-    lis.push(<>[<Term>{path[0]}</Term>] {i === 0 ? 'which' : ''} is {typeLabel || `<${type}>`} {path[2] && <>[<Term>{path[2]}</Term>]</>}.<br /></>);
+    lis.push(<>[<Term>{path[0]}</Term>] {i === 0 ? 'which' : ''} {path[1]} {path[2] && <>[<Term>{path[2]}</Term>]</>}.<br /></>);
   });
   return lis;
 }
