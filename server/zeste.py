@@ -17,7 +17,7 @@ if os.path.exists(relations_filepath):
     lines = relations_file.readlines()
     for line in lines:
         items = line.strip().split('\t')
-        relations[items[0]] = items[1]
+        relations[items[0].strip()] = items[1].strip()
 
 
 def preprocess(doc):
