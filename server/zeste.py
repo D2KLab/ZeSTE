@@ -4,13 +4,25 @@ import pickle
 import logging
 from flask import jsonify
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer 
+from nltk.stem import WordNetLemmatizer
+
 
 numberbatch = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08-en.pickle", 'rb'))
 
+print('Loading relations descriptions...')
+relations = {}
+relations_filepath = '/data/zeste_cache/relations_descriptions.txt'
+if os.path.exists(relations_filepath):
+    relations_file = open(relations_filepath, 'r')
+    lines = relations_file.readlines()
+    for line in lines:
+        items = line.strip().split('\t')
+        relations[items[0]] = items[1]
+
+
 def preprocess(doc):
     lemmatizer = WordNetLemmatizer()
-    
+
     doc = doc.replace("'ll", ' will').replace("s' ", 's').replace("'s", '').replace("-", '_')
     doc = ''.join(c for c in doc if c not in '!"#$%&\'()*+,./:;<=>?@[\\]^`{|}~')
     tokens = [w for w in doc.lower().split(' ') if w not in stopwords.words('english')]
@@ -22,7 +34,7 @@ def preprocess(doc):
 def get_word_neighborhood(word, depth=2, allowed_rels='all'):
     neighborhood = pickle.load(open('/data/zeste_cache/neighborhoods/'+word+'.pickle', 'rb'))
     neighborhood_words = list(neighborhood.keys())
-    
+
     if allowed_rels != 'all':
         for n in neighborhood_words:
             if all(rel not in neighborhood[n]['rels'] for rel in allowed_rels):
@@ -70,29 +82,29 @@ def generate_label_neighborhoods(labels_list):
 def find_best_path(word, label, label_neighborhood):
     if word == label:
         return (word, 'is_label')
-    
+
     if label in label_neighborhood[word]['from']:
         return (word, label_neighborhood[word]['rels'][-1], label)
-    
+
     for ww in label_neighborhood[word]['from']:
         paths = []
         if label in label_neighborhood[ww]['from']:
             nw = pickle.load(open('/data/zeste_cache/neighborhoods/'+ww+'.pickle', 'rb'))
             return (word, nw[word]['rels'][-1], ww, label_neighborhood[ww]['rels'][-1], label)
 
-        
+
 def get_document_score_and_explain(doc, label, label_neighborhood):
     tokens = preprocess(doc)
     related_words = []
     score = 0
-    for token in tokens: 
+    for token in tokens:
         if token in label_neighborhood:
             similarity = label_neighborhood[token]['sim']
             if similarity > 0:
                 related_words.append((token, similarity))
                 score += similarity
-    
-    
+
+
     explanation = []
     for word, similarity in related_words:
         explanation.append((find_best_path(word, label, label_neighborhood), similarity))
@@ -105,15 +117,15 @@ def generate_json(explanation):
     response = []
     for label in explanation:
         d = {'label': label, 'score': str(explanation[label][0]), 'terms':[]}
-        
+
         for path, score in explanation[label][1]:
             if len(path) == 2:
                 d['terms'].append({'paths':[[label, "label"]], 'score': str(score)})
             elif len(path) == 3:
-                d['terms'].append({'paths':[[path[0], path[1], path[2]]], 'score': str(score)})
+                d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]]], 'score': str(score)})
             elif len(path) == 5:
-                d['terms'].append({'paths':[[path[0], path[1], path[2]], [path[2], path[3], path[4]]], 'score': str(score)})
-        
+                d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': str(score)})
+
         response.append(d)
     return response
 
@@ -123,5 +135,5 @@ def predict(doc, labels_list):
     res = {}
     for label in lns:
         res[label] = get_document_score_and_explain(doc, label, lns[label])
-    
+
     return generate_json(res)
