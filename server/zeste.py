@@ -6,6 +6,7 @@ from flask import jsonify
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer 
 
+numberbatch = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08-en.pickle", 'rb'))
 
 def preprocess(doc):
     lemmatizer = WordNetLemmatizer()
@@ -82,7 +83,6 @@ def find_best_path(word, label, label_neighborhood):
         
 def get_document_score_and_explain(doc, label, label_neighborhood):
     tokens = preprocess(doc)
-    print(tokens)
     related_words = []
     score = 0
     for token in tokens: 
@@ -104,15 +104,15 @@ def get_document_score_and_explain(doc, label, label_neighborhood):
 def generate_json(explanation):
     response = []
     for label in explanation:
-        d = {'label': label, 'score': explanation[label][0], 'terms':[]}
+        d = {'label': label, 'score': str(explanation[label][0]), 'terms':[]}
         
         for path, score in explanation[label][1]:
             if len(path) == 2:
-                d['terms'].append({'paths':[[label, "label"]], 'score': score})
+                d['terms'].append({'paths':[[label, "label"]], 'score': str(score)})
             elif len(path) == 3:
-                d['terms'].append({'paths':[[path[0], path[1], path[2]]], 'score': score})
+                d['terms'].append({'paths':[[path[0], path[1], path[2]]], 'score': str(score)})
             elif len(path) == 5:
-                d['terms'].append({'paths':[[path[0], path[1], path[2]], [path[2], path[3], path[4]]], 'score': score})
+                d['terms'].append({'paths':[[path[0], path[1], path[2]], [path[2], path[3], path[4]]], 'score': str(score)})
         
         response.append(d)
     return response
