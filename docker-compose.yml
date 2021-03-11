@@ -5,6 +5,8 @@ services:
       context: ./server
     ports:
       - "4997:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
     volumes:
       - /data/zeste_cache:/data/zeste_cache
   web:
