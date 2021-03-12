@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Autosuggest from 'react-autosuggest';
 
 import GlobalStyle from './globalStyle';
+import Term from './components/Term';
 
 const Layout = styled.div`
 display: flex;
@@ -69,6 +70,7 @@ padding: 8px;
 const Results = styled.div`
 flex: 0.5;
 padding: 1rem 2rem;
+box-shadow: 0 0 10px 0px rgba(0,0,0,0.2);
 
 pre {
   overflow: auto;
@@ -110,9 +112,6 @@ display: inline-block;
 vertical-align: middle;
 `;
 
-const Term = styled.span`
-color: rgb(27, 125, 160);
-`;
 
 const Lemon = styled.div`
   box-shadow: 52px 74px 223px -9px rgba(255,200,0,1);
@@ -146,9 +145,11 @@ const Lemon = styled.div`
 const datasets = [
   {
     name: '20NG',
+    labels: ['baseball', 'car', 'cryptography', 'electronics', 'graphic', 'gun', 'hardware', 'hockey', 'medicine', 'middle_east', 'motorcycle', 'politics', 'religion', 'sale', 'space', 'windows']
   },
   {
     name: 'AFP',
+    labels: []
   },
 ];
 
@@ -162,7 +163,8 @@ const renderSuggestion = suggestion => (
 const generateExplanations = (paths) => {
   const lis = [];
   paths.forEach((path, i) => {
-    lis.push(<>[<Term>{path[0]}</Term>] {i === 0 ? 'which' : ''} {path[1]} {path[2] && <>[<Term>{path[2]}</Term>]</>}.<br /></>);
+    const relation = path[1] === 'label' ? 'is the label' : path[1];
+    lis.push(<>[<Term>{path[0]}</Term>] {i === 0 ? 'which' : ''} {relation}{path[2] && <> [<Term>{path[2]}</Term>]</>}.<br /></>);
   });
   return lis;
 }
@@ -173,10 +175,11 @@ function App() {
   const [ predictions, setPredictions ] = useState([]);
   const [ inputText, setInputText ] = useState('A NASA spacecraft set a new milestone Monday in cosmic exploration by entering orbit around an asteroid, Bennu, the smallest object ever to be circled by a human-made spaceship. The spacecraft, called OSIRIS-REx, is the first-ever US mission designed to visit an asteroid and return a sample of its dust back to Earth..');
   const [ inputLabel, setInputLabel ] = useState('');
-  const [ inputCustomLabel, setInputCustomLabel ] = useState('');
   const [ userLabels, setUserLabels ] = useState([]);
-  const [ userCustomLabels, setUserCustomLabels ] = useState([]);
   const [ error, setError ] = useState(null);
+  const [ visibleExplanations, setVisibleExplanations ] = useState({});
+  const [ showMoreExplanations, setShowMoreExplanations ] = useState({});
+  const [ selectedDataset, setSelectedDataset ] = useState(null);
 
   const onSuggestionsFetchRequested = async ({ value }) => {
     const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/autocomplete?q=${encodeURIComponent(value)}`)).json();
@@ -194,17 +197,23 @@ function App() {
   }
 
   const inputProps = {
-    placeholder: 'cinema',
+    placeholder: 'spacecraft',
     value: inputLabel,
     onChange: (event, { newValue }) => {
       setInputLabel(newValue);
-    }
+    },
+    style: { width: 400 }
   };
 
   const predict = async () => {
     setPredictions([]);
     setIsLoading(true);
     setError(null);
+    setVisibleExplanations({});
+    setShowMoreExplanations({});
+
+    const dataset = datasets.find(dataset => dataset.name === selectedDataset);
+    const datasetLabels = dataset ? dataset.labels : [];
 
     let data;
     try {
@@ -216,36 +225,21 @@ function App() {
         },
         body: JSON.stringify({
           text: inputText,
-          labels: [...userLabels, ...userCustomLabels].join(';'),
+          labels: [...userLabels, ...datasetLabels].join(';'),
         })
       })).json();
+
+      setPredictions(data);
+      if (data[0] && data[0].label) {
+        toggleExplanation(data[0].label);
+      }
     } catch (err) {
       console.error(err);
       setError(err.toString());
     } finally {
       setIsLoading(false);
     }
-
-    setPredictions(data);
   };
-
-  const handleAddLabel = (ev) => {
-    const label = inputLabel.replace(';', '');
-    if (label.length > 0) {
-      setUserLabels([...userLabels, label]);
-    }
-    setInputLabel('');
-    ev.preventDefault();
-  };
-
-  const handleAddCustomLabel = (ev) => {
-    const label = inputCustomLabel.replace(';', '');
-    if (label.length > 0) {
-      setUserCustomLabels([...userCustomLabels, label]);
-    }
-    setInputCustomLabel('');
-    ev.preventDefault();
-  }
 
   const deleteLabel = (index) => {
     const newLabels = userLabels.slice();
@@ -253,87 +247,91 @@ function App() {
     setUserLabels(newLabels);
   };
 
-  const deleteCustomLabel = (index) => {
-    const newCustomLabels = userCustomLabels.slice();
-    newCustomLabels.splice(index, 1);
-    setUserCustomLabels(newCustomLabels);
+  const toggleMoreExplanations = (label) => {
+    setShowMoreExplanations({
+      ...showMoreExplanations,
+      [label]: !showMoreExplanations[label]
+    });
   };
+
+  const toggleExplanation = (label) => {
+    setVisibleExplanations({
+      ...visibleExplanations,
+      [label]: !visibleExplanations[label]
+    })
+  };
+
+  const onChangeDataset = (ev) => {
+    ev.preventDefault();
+    setSelectedDataset(ev.target.value);
+  }
+
+  const dataset = datasets.find(dataset => dataset.name === selectedDataset);
+  const datasetLabels = dataset ? dataset.labels : [];
 
   return (
     <>
       <GlobalStyle />
       <Layout>
         <Form>
-          <h1>ZeSTE</h1>
+          <h1>ZeSTE 🍋</h1>
 
           <div>
-            <h2>Enter the text for which you want to extract topics</h2>
+            <h2>1. Enter the text for which you want to extract topics</h2>
           </div>
 
-          <div>
-            <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
-          </div>
-
-          <div>
+          <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>
+            <div>
+              <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
+            </div>
             <h2>Or enter the URL of a page</h2>
-          </div>
-
-          <div>
-            <input type="text" />
-          </div>
-
-          <div>
             <div>
-              <h2>Select labels from an existing dataset</h2>
-            </div>
-
-            <form onSubmit={handleAddLabel} style={{ display: 'flex' }}>
-              <select style={{ marginRight: '1em' }}>
-                {datasets.map(item => (
-                  <option value={item.name}>{item.name}</option>
-                ))}
-              </select>
-              <Autosuggest
-                suggestions={suggestions}
-                onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-                onSuggestionsClearRequested={onSuggestionsClearRequested}
-                onSuggestionSelected={onSuggestionSelected}
-                getSuggestionValue={getSuggestionValue}
-                renderSuggestion={renderSuggestion}
-                inputProps={inputProps}
-              />
-              <button type="submit" style={{ flex: '0' }} onClick={handleAddLabel}>&nbsp;+&nbsp;</button>
-            </form>
-
-            <div>
-              <ul>
-                {userLabels.map((label, i) => (
-                  <li><button onClick={() => deleteLabel(i)} style={{ fontSize:'0.6rem', display:'inline-block' }}>x</button> {label}</li>
-                ))}
-              </ul>
+              <input type="url" placeholder="https://example.com" pattern="https://.*" style={{ width: 400 }} />
             </div>
           </div>
 
           <div>
-            <div>
-              <h2>Or add your own labels</h2>
-            </div>
+            <h2>2. Select labels from an existing dataset</h2>
 
-            <form onSubmit={handleAddCustomLabel} style={{ display: 'flex' }}>
-              <input type="text" value={inputCustomLabel} onChange={(ev) => setInputCustomLabel(ev.target.value)} />
-              <button type="submit" style={{ flex: '0' }} onClick={handleAddCustomLabel}>&nbsp;+&nbsp;</button>
-            </form>
+            <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>
+              <form onSubmit={onChangeDataset} style={{ display: 'flex' }}>
+                <select onChange={onChangeDataset} style={{ marginRight: '1em', width: 400 }}>
+                  <option value=""> </option>
+                  {datasets.map(item => (
+                    <option value={item.name}>{item.name}</option>
+                  ))}
+                </select>
+              </form>
 
-            <div>
-              <ul>
-                {userCustomLabels.map((label, i) => (
-                  <li><button onClick={() => deleteCustomLabel(i)} style={{ fontSize:'0.6rem', display:'inline-block' }}>x</button> {label}</li>
-                ))}
-              </ul>
+              {datasetLabels.length > 0 && datasetLabels.join(', ')}
+
+              <div>
+                <h2>Or add your own labels</h2>
+              </div>
+
+              <div>
+                <div style={{ display: 'flex' }}>
+                  <Autosuggest
+                    suggestions={suggestions}
+                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                    onSuggestionSelected={onSuggestionSelected}
+                    getSuggestionValue={getSuggestionValue}
+                    renderSuggestion={renderSuggestion}
+                    inputProps={inputProps}
+                  />
+                </div>
+                <div>
+                  <ul>
+                    {userLabels.map((label, i) => (
+                      <li><button onClick={() => deleteLabel(i)} style={{ fontSize:'0.6rem', display:'inline-block' }}>x</button> {label}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
-          <br />
           <button onClick={predict} disabled={isLoading}>Predict The Topics</button>
         </Form>
 
@@ -357,23 +355,36 @@ function App() {
                 <h2>The predicted main topic is:</h2>
                 <div>
                   <MainLabel>
-                    {predictions[0].label}
+                    <Term>{predictions[0].label}</Term>
                     <Confidence>Confidence: {(predictions[0].score * 100).toFixed(2)}%</Confidence>
                   </MainLabel>
                 </div>
 
-                <div>
-                  <h2>Explanation:</h2>
+                <div style={{ marginBottom: '1em' }}>
+                  <h2 style={{ display: 'inline' }}>Explanation:</h2>
+                  {' '}
+                  {visibleExplanations[predictions[0].label] && (
+                    <small><a href={`#${predictions[0].label}`} onClick={() => toggleExplanation(predictions[0].label)}>(hide)</a></small>
+                  )}
                 </div>
-                <div>
-                  <div>The document contains the terms:</div>
+                {visibleExplanations[predictions[0].label] ? (
                   <div>
-                      {predictions[0].terms.map(term => {
-                        const explanations = generateExplanations(term.paths);
-                        return <ul><li>{explanations}</li></ul>;
-                      })}
+                    <div>The document contains the terms:</div>
+                    <div>
+                        {predictions[0].terms.slice(0, showMoreExplanations[predictions[0].label] ? undefined : 10).map(term => {
+                          const explanations = generateExplanations(term.paths);
+                          return <ul><li>{explanations}</li></ul>;
+                        })}
+                    </div>
+                    {predictions[0].terms.length > 10 && (
+                      <div style={{ marginLeft: '2.5em' }}>
+                        <button onClick={() => { toggleMoreExplanations(predictions[0].label); }}>show {showMoreExplanations[predictions[0].label] ? 'less' : 'more'}</button>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <a href={`#${predictions[0].label}`} onClick={() => toggleExplanation(predictions[0].label)}>(show explanations for the main topic)</a>
+                )}
 
                 {predictions.length > 1 && (
                   <div>
@@ -381,10 +392,30 @@ function App() {
                       <h2>The other possible topics with their explanation for this document are:</h2>
                     </div>
                     <div>
-                      {predictions.slice(1).map(item => {
+                      {predictions.slice(1).map(prediction => {
                         return (
-                          <div>
-                            <div><Label title={item.label}>{item.label}</Label> Confidence: {(item.score * 100).toFixed(2)}% <a href="#">(see explanation)</a></div>
+                          <div id={prediction.label}>
+                            <div>
+                              <Label title={prediction.label}>{prediction.label}</Label> Confidence: {(prediction.score * 100).toFixed(2)}%
+                              {' '}
+                              <a href={`#${prediction.label}`} onClick={() => toggleExplanation(prediction.label)}>({visibleExplanations[prediction.label] ? 'hide explanation' : 'see explanation'})</a>
+                            </div>
+
+                            {visibleExplanations[prediction.label] && (
+                              <>
+                                <div>
+                                  {prediction.terms.slice(0, showMoreExplanations[prediction.label] ? undefined : 10).map(term => {
+                                    const explanations = generateExplanations(term.paths);
+                                    return <ul><li>{explanations}</li></ul>;
+                                  })}
+                                </div>
+                                {prediction.terms.length > 10 && (
+                                  <div style={{ marginLeft: '2.5em' }}>
+                                    <button onClick={() => { toggleMoreExplanations(prediction.label); }}>show {showMoreExplanations[prediction.label] ? 'less' : 'more'}</button>
+                                  </div>
+                                )}
+                              </>
+                            )}
                           </div>
                         );
                       })}

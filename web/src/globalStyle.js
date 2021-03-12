@@ -30,6 +30,10 @@ const GlobalStyle = createGlobalStyle`
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   }
 
+  a {
+    color: rgb(27, 125, 160);
+  }
+
   .react-autosuggest__container {
     position: relative;
   }
