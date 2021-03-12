@@ -229,9 +229,13 @@ function App() {
         })
       })).json();
 
-      setPredictions(data);
-      if (data[0] && data[0].label) {
-        toggleExplanation(data[0].label);
+      if (data && data.error) {
+        setError(data.error);
+      } else {
+        setPredictions(data);
+        if (data[0] && data[0].label) {
+          toggleExplanation(data[0].label);
+        }
       }
     } catch (err) {
       console.error(err);

@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 from zeste import predict
 import os
+import json
 
 
 def do_things_to_external_uri(uri):
@@ -79,6 +80,12 @@ def predict_route():
 
     # Return the output as a JSON string
     return jsonify(response)
+
+
+@app.errorhandler(Exception)
+def exception_handler(e):
+    return jsonify({ "error": str(repr(e)) })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
