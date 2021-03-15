@@ -278,7 +278,7 @@ function App() {
       <GlobalStyle />
       <Layout>
         <Form>
-          <h1>ZeSTE 🍋</h1>
+          <h1>ZeSTE 🍋 <small>Zero-Shot Topic Extraction</small></h1>
 
           <div>
             <h2>1. Enter the text for which you want to extract topics</h2>
@@ -295,7 +295,7 @@ function App() {
           </div>
 
           <div>
-            <h2>2. Select labels from an existing dataset</h2>
+            <h2>2. Select an existing set of topics</h2>
 
             <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>
               <form onSubmit={onChangeDataset} style={{ display: 'flex' }}>
@@ -310,7 +310,7 @@ function App() {
               {datasetLabels.length > 0 && datasetLabels.join(', ')}
 
               <div>
-                <h2>Or add your own labels</h2>
+                <h2>Or create your own set of topics</h2>
               </div>
 
               <div>
