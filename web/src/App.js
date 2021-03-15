@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import Autosuggest from 'react-autosuggest';
+import AsyncSelect from 'react-select/async';
 
 import GlobalStyle from './globalStyle';
 import Term from './components/Term';
@@ -153,13 +153,6 @@ const datasets = [
   },
 ];
 
-const getSuggestionValue = suggestion => suggestion.name;
-const renderSuggestion = suggestion => (
-  <div>
-    {suggestion.name}
-  </div>
-);
-
 const generateExplanations = (paths) => {
   const lis = [];
   paths.forEach((path, i) => {
@@ -170,40 +163,20 @@ const generateExplanations = (paths) => {
 }
 
 function App() {
-  const [ suggestions, setSuggestions ] = useState([]);
   const [ isLoading, setIsLoading ] = useState(false);
   const [ predictions, setPredictions ] = useState([]);
   const [ inputText, setInputText ] = useState('A NASA spacecraft set a new milestone Monday in cosmic exploration by entering orbit around an asteroid, Bennu, the smallest object ever to be circled by a human-made spaceship. The spacecraft, called OSIRIS-REx, is the first-ever US mission designed to visit an asteroid and return a sample of its dust back to Earth..');
   const [ inputURL, setInputURL ] = useState('');
-  const [ inputLabel, setInputLabel ] = useState('');
   const [ userLabels, setUserLabels ] = useState([]);
   const [ error, setError ] = useState(null);
   const [ visibleExplanations, setVisibleExplanations ] = useState({});
   const [ showMoreExplanations, setShowMoreExplanations ] = useState({});
   const [ selectedDataset, setSelectedDataset ] = useState(null);
 
-  const onSuggestionsFetchRequested = async ({ value }) => {
+  const onLoadOptions = async (value) => {
     const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/autocomplete?q=${encodeURIComponent(value)}`)).json();
-    const suggestions = data.map(item => ({ name: item[0] }));
-    setSuggestions(suggestions);
-  };
-  const onSuggestionsClearRequested = () => {
-    setSuggestions([]);
-  };
-  const onSuggestionSelected = (ev, { suggestionValue }) => {
-    if (suggestionValue.length > 0) {
-      setUserLabels([...userLabels, suggestionValue]);
-    }
-    setInputLabel('');
-  }
-
-  const inputProps = {
-    placeholder: 'spacecraft',
-    value: inputLabel,
-    onChange: (event, { newValue }) => {
-      setInputLabel(newValue);
-    },
-    style: { width: 400 }
+    const suggestions = data.map(item => ({ value: item[0], label: item[0] }));
+    return suggestions;
   };
 
   const predict = async () => {
@@ -251,12 +224,6 @@ function App() {
     }
   };
 
-  const deleteLabel = (index) => {
-    const newLabels = userLabels.slice();
-    newLabels.splice(index, 1);
-    setUserLabels(newLabels);
-  };
-
   const toggleMoreExplanations = (label) => {
     setShowMoreExplanations({
       ...showMoreExplanations,
@@ -276,6 +243,10 @@ function App() {
     setSelectedDataset(ev.target.value);
   }
 
+  const handleSelectLabel = (items) => {
+    setUserLabels(items.map(item => item.value));
+  }
+
   const dataset = datasets.find(dataset => dataset.name === selectedDataset);
   const datasetLabels = dataset ? dataset.labels : [];
 
@@ -291,6 +262,7 @@ function App() {
           </div>
 
           <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>
+            <p><em>Only English is currently supported.</em></p>
             <div>
               <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
             </div>
@@ -321,28 +293,36 @@ function App() {
 
               <div>
                 <div style={{ display: 'flex' }}>
-                  <Autosuggest
-                    suggestions={suggestions}
-                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-                    onSuggestionsClearRequested={onSuggestionsClearRequested}
-                    onSuggestionSelected={onSuggestionSelected}
-                    getSuggestionValue={getSuggestionValue}
-                    renderSuggestion={renderSuggestion}
-                    inputProps={inputProps}
+                  <AsyncSelect
+                    isMulti
+                    cacheOptions
+                    defaultOptions
+                    loadOptions={onLoadOptions}
+                    onChange={handleSelectLabel}
+                    placeholder="Start typing a topic"
+                    styles={{
+                      container: base => ({
+                        ...base,
+                        width: 400,
+                      }),
+                      control: base => ({
+                        ...base,
+                        borderRadius: 0,
+                        borderWidth: '0px 0px 2px',
+                        borderColor: 'black',
+                        backgroundColor: 'rgb(240,240,240)',
+                      })
+                    }}
+                    theme={theme => ({
+                      ...theme,
+                      borderRadius: 0,
+                      colors: {
+                        ...theme.colors,
+                        primary: 'black',
+                      },
+                    })}
                   />
                 </div>
-                <div>
-                  <ul>
-                    {userLabels.map((label, i) => (
-                      <li><button onClick={() => deleteLabel(i)} style={{ fontSize:'0.6rem', display:'inline-block' }}>x</button> {label}</li>
-                    ))}
-                  </ul>
-                </div>
-                {userLabels.length > 0 && (
-                  <div>
-                    <button onClick={() => setUserLabels([])}>Clear all topics</button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
