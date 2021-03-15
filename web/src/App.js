@@ -332,6 +332,11 @@ function App() {
                     ))}
                   </ul>
                 </div>
+                {userLabels.length > 0 && (
+                  <div>
+                    <button onClick={() => setUserLabels([])}>Clear all topics</button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
