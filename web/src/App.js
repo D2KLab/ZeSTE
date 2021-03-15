@@ -174,6 +174,7 @@ function App() {
   const [ isLoading, setIsLoading ] = useState(false);
   const [ predictions, setPredictions ] = useState([]);
   const [ inputText, setInputText ] = useState('A NASA spacecraft set a new milestone Monday in cosmic exploration by entering orbit around an asteroid, Bennu, the smallest object ever to be circled by a human-made spaceship. The spacecraft, called OSIRIS-REx, is the first-ever US mission designed to visit an asteroid and return a sample of its dust back to Earth..');
+  const [ inputURL, setInputURL ] = useState('');
   const [ inputLabel, setInputLabel ] = useState('');
   const [ userLabels, setUserLabels ] = useState([]);
   const [ error, setError ] = useState(null);
@@ -214,6 +215,14 @@ function App() {
 
     const dataset = datasets.find(dataset => dataset.name === selectedDataset);
     const datasetLabels = dataset ? dataset.labels : [];
+    const params = {
+      labels: [...userLabels, ...datasetLabels].join(';'),
+    };
+    if (inputURL.length > 0) {
+      params.uri = inputURL;
+    } else {
+      params.text = inputText;
+    }
 
     let data;
     try {
@@ -223,10 +232,7 @@ function App() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          text: inputText,
-          labels: [...userLabels, ...datasetLabels].join(';'),
-        })
+        body: JSON.stringify(params)
       })).json();
 
       if (data && data.error) {
@@ -290,7 +296,7 @@ function App() {
             </div>
             <h2>Or enter the URL of a page</h2>
             <div>
-              <input type="url" placeholder="https://example.com" pattern="https://.*" style={{ width: 400 }} />
+              <input value={inputURL} onChange={(ev) => setInputURL(ev.target.value)} type="url" placeholder="https://example.com" pattern="https://.*" style={{ width: 400 }} />
             </div>
           </div>
 
