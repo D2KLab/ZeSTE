@@ -299,6 +299,7 @@ function App() {
                     defaultOptions
                     loadOptions={onLoadOptions}
                     onChange={handleSelectLabel}
+                    menuPlacement="top"
                     placeholder="Start typing a topic"
                     styles={{
                       container: base => ({
