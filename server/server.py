@@ -4,6 +4,7 @@ from flask_cors import CORS, cross_origin
 from zeste import predict
 import os
 import json
+import trafilatura
 
 
 def do_things_to_external_uri(uri):
@@ -45,7 +46,10 @@ def predict_route():
     print(content)
 
     if 'uri' in content:
-        text = do_things_to_external_uri(content['uri'])
+        downloaded = trafilatura.fetch_url(content['uri'])
+        if downloaded is None:
+            return jsonify({ "error": "Could not fetch URL" })
+        text = trafilatura.extract(downloaded)
     elif 'text' in content:
         text = content['text']
 
