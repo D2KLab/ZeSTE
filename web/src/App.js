@@ -149,7 +149,7 @@ const datasets = [
   },
   {
     name: 'AFP',
-    labels: []
+    labels: ['art-culture-entertainment', 'crime-law-justice', 'disaster-accident', 'economy-business-finance', 'environment', 'health', 'interest-activity', 'politics', 'religion-belief','science-technology', 'social-issue', 'sport', 'unrest-conflict-war','weather']
   },
 ];
 
