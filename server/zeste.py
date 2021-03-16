@@ -42,7 +42,6 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all'):
         for n in neighborhood_words:
             if all(rel not in neighborhood[n]['rels'] for rel in allowed_rels):
                 del neighborhood[n]
-                continue
 
     to_visit_next = list(neighborhood.keys())
     while depth > 1:
@@ -68,6 +67,29 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all'):
     return neighborhood
 
 
+
+def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'synonym'], keep='top20000'):
+    words = words.split('-')
+    ns = []
+    
+    for word in words:
+        ns.append(get_word_neighborhood(word, depth=depth))
+    neighborhood = ns[0].copy()
+    
+    for w, nn in zip(words[1:], ns[1:]):
+        for ww in nn:
+            if ww in neighborhood:
+                neighborhood[ww]['from'].append(w)
+                neighborhood[ww]['rels'].extend(['<>'] + nn[ww]['rels'])
+                neighborhood[ww]['sim'] = max(neighborhood[ww]['sim'], nn[ww]['sim'])
+            else:
+                neighborhood[ww] = {}
+                neighborhood[ww]['from'] = [w]
+                neighborhood[ww]['rels'] = nn[ww]['rels']
+                neighborhood[ww]['sim']  = nn[ww]['sim']
+
+    return neighborhood
+
 def generate_label_neighborhoods(labels_list):
     label_neighborhoods = {}
     for label in labels_list:
@@ -77,9 +99,10 @@ def generate_label_neighborhoods(labels_list):
             label_neighborhoods[label] = pickle.load(open(path, 'rb'))
         else:
             logging.info('Generating neighborhood for the label "'+ label +'"')
-            label_neighborhoods[label] = get_word_neighborhood(label, depth=2, allowed_rels='all')
+            label_neighborhoods[label] = get_words_neighborhood(label, depth=2, allowed_rels='all')
             pickle.dump(label_neighborhoods[label], open(path, 'wb'))
     return label_neighborhoods
+
 
 
 def find_best_path(word, label, label_neighborhood):
@@ -93,10 +116,13 @@ def find_best_path(word, label, label_neighborhood):
         paths = []
         if label in label_neighborhood[ww]['from']:
             nw = pickle.load(open('/data/zeste_cache/neighborhoods/'+ww+'.pickle', 'rb'))
-            return (word, nw[word]['rels'][-1], ww, label_neighborhood[ww]['rels'][-1], label)
+            if word in nw:
+                return (word, nw[word]['rels'][-1], ww, label_neighborhood[ww]['rels'][-1], label)
+            else:
+                return  None
 
 
-def get_document_score_and_explain(doc, label, label_neighborhood):
+def get_document_score_and_explain(doc, labels, label_neighborhood):
     tokens = preprocess(doc)
     related_words = []
     score = 0
@@ -107,11 +133,19 @@ def get_document_score_and_explain(doc, label, label_neighborhood):
                 related_words.append((token, similarity))
                 score += similarity
 
+    if '-' not in labels:
+        labels = [labels]
+    else:
+        labels = labels.split('-')
 
     explanation = []
-    for word, similarity in related_words:
-        explanation.append((find_best_path(word, label, label_neighborhood), similarity))
-    explanation = list(set(explanation))
+        
+    for label in labels:
+        for word, similarity in related_words:
+            best_path = find_best_path(word, label, label_neighborhood)
+            if best_path:
+                explanation.append((best_path, similarity))
+        explanation = list(set(explanation))
 
     return score, sorted(explanation, key=lambda t: -t[1])
 
@@ -130,6 +164,11 @@ def generate_json(explanation):
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': float(score)})
 
         response.append(d)
+        
+    total_scores = sum(label['score'] for label in response)
+    for label in response:
+        label['score'] /= total_scores if total_scores > 0 else 1.
+    
     return response
 
 

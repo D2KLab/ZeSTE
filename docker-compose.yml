@@ -15,4 +15,4 @@ services:
     ports:
       - "4998:3000"
     environment:
-      - REACT_APP_SERVER_URL=http://localhost:4997
+      - REACT_APP_SERVER_URL=https://zeste.tools.eurecom.fr/api
