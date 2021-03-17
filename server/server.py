@@ -83,7 +83,11 @@ def predict_route():
     #     'score': 0.054559235}]}]
 
     # Return the output as a JSON string
-    return jsonify(response)
+    return jsonify({
+        "text": text,
+        "labels": labels,
+        "results": response
+    })
 
 
 @app.errorhandler(Exception)
