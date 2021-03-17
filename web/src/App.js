@@ -294,7 +294,7 @@ function App() {
                 </select>
               </form>
 
-              {datasetLabels.length > 0 && datasetLabels.join(', ')}
+              {dataset && <p dangerouslySetInnerHTML={{__html: dataset.description}} />}
 
               <div>
                 <h2>Or create your own set of topics</h2>
