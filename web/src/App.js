@@ -399,9 +399,9 @@ function App() {
                     <div>
                       {predictions.slice(1).map(prediction => {
                         return (
-                          <div id={prediction.label}>
+                          <div id={prediction.label} style={{ marginBottom: '1em' }}>
                             <div>
-                              <Label title={prediction.label}>{prediction.label}</Label> Confidence: {(prediction.score * 100).toFixed(2)}%
+                              <Label title={prediction.label}><Term>{prediction.label}</Term></Label> Confidence: {(prediction.score * 100).toFixed(2)}%
                               {' '}
                               <a href={`#${prediction.label}`} onClick={() => toggleExplanation(prediction.label)}>({visibleExplanations[prediction.label] ? 'hide explanation' : 'see explanation'})</a>
                             </div>
