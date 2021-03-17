@@ -150,7 +150,7 @@ const datasets = [
     labels: ['baseball', 'car', 'cryptography', 'electronics', 'graphic', 'gun', 'hardware', 'hockey', 'medicine', 'middle_east', 'motorcycle', 'politics', 'religion', 'sale', 'space', 'windows']
   },
   {
-    name: 'AFP',
+    name: 'IPTC',
     labels: ['art-culture-entertainment', 'crime-law-justice', 'disaster-accident', 'economy-business-finance', 'environment', 'health', 'interest-activity', 'politics', 'religion-belief','science-technology', 'social-issue', 'sport', 'unrest-conflict-war','weather']
   },
 ];
