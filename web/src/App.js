@@ -147,6 +147,7 @@ const SpinningLemon = styled.div`
 const datasets = [
   {
     name: '20NG',
+    description: '20NG: 16 topics coming from the 20 Newsgroups dataset, <a href="http://qwone.com/~jason/20Newsgroups/" rel="noopener noreferrer">http://qwone.com/~jason/20Newsgroups/</a>. From the original topics, "atheism", "christianity", "religion" have been grouped into "religion", "PC hardware", "Mac hardware" into "hardware", and "windows.x", "windows.misc" into "windows". The final set of topics are (alphabetically ordered): baseball, car, cryptography, electronics, graphic, gun, hardware, hockey, medicine, middle east, motorcycle, politics, religion, sale, space, windows.',
     labels: ['baseball', 'car', 'cryptography', 'electronics', 'graphic', 'gun', 'hardware', 'hockey', 'medicine', 'middle_east', 'motorcycle', 'politics', 'religion', 'sale', 'space', 'windows']
   },
   {
