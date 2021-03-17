@@ -5,6 +5,8 @@ import AsyncSelect from 'react-select/async';
 import GlobalStyle from './globalStyle';
 import Term from './components/Term';
 
+import Lemon from './lemon.png'
+
 const Layout = styled.div`
 display: flex;
 flex-direction: row;
@@ -113,7 +115,7 @@ vertical-align: middle;
 `;
 
 
-const Lemon = styled.div`
+const SpinningLemon = styled.div`
   box-shadow: 52px 74px 223px -9px rgba(255,200,0,1);
   width:100px;
   height:100px;
@@ -255,7 +257,13 @@ function App() {
       <GlobalStyle />
       <Layout>
         <Form>
-          <h1>ZeSTE 🍋 <small>Zero-Shot Topic Extraction</small></h1>
+          <h1>
+            <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
+            {' '}
+            <img src={Lemon} alt="Logo" style={{ verticalAlign: 'middle' }} />
+            {' '}
+            <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
+          </h1>
 
           <div>
             <h2>1. Enter the text for which you want to extract topics</h2>
@@ -335,7 +343,7 @@ function App() {
           <Results>
             {isLoading && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
-                <div><Lemon /></div>
+                <div><SpinningLemon /></div>
                 <p><em>Squeezing some lemons...</em></p>
               </div>
             )}
