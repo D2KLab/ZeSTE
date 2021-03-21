@@ -1,0 +1,4 @@
+Business	business
+Sci/Tech	science;technology
+Sports	sport
+World	politics

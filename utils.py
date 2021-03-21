@@ -46,7 +46,9 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path):
             current_node = to_visit_next.pop()
             if current_node in stopwords.words('english'):
                 continue
-            cnn = get_word_neighborhood(current_node, depth=1)
+            if neighborhood[current_node]['sim']['simple'] <= 0:
+                continue
+            cnn = get_word_neighborhood(current_node, depth, numberbatch, cache_path, prefetch_path)
             for word in cnn:
                 if word not in neighborhood:
                     neighborhood[word] = {'from':[], 'rels': [], 'sim':{}}
