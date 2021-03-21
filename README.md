@@ -1,4 +1,4 @@
-<div align="center"><img src="zeste_logo.png" width="300"></div>
+<div align="center"><img src="zeste_logo.png" width="200"></div>
 
 # ZeSTE - Zero-Shot Topic Extraction with Common-Sense Knowledge Graph
 
