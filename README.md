@@ -1,4 +1,56 @@
-# zeste.py
+![ZeSTE](zeste_logo.png | width=200)
+
+This repository contains the code for reproducing the results reported in the paper "Explainable Zero-Shot Topic Extraction with Common-Sense Knowledge Graph" (currently under review for the [LDK 2021 conference](http://2021.ldk-conf.org/)).
+
+# Overview
+This repo is organized as follows:
+* `generate_cache.py`: this script processes the raw ConceptNet dump to produce cached files for each node in ConceptNet to accelerate the label neighborhood generation. It also transforms ConceptNet Numberbatch text file into a Gensim word embedding that we pickle for quick loading.
+* `zeste.py`: this is the main script for evaluation. It takes as argument the dataset to process as well as model configuration parameters such as neighborhood depth (see below). The results (classification report, confusion matrix, and classification metrics) are persisted into text files.
+* `util.py`: contains the functions that are used in `zeste.py`
+* `label_mappings`: contains the tab-separated mappings for the studied datasets.
+
+
+# Dependencies
+Before running any code in this repo, please install the following dependencies:
+* numpy
+* pandas 
+* matplotlib
+* nltk
+* sklearn
+* tqdm
+* gensim
+
+# Reproducing Results
+### 1. Downloads
+The two following files need to be downloaded to bypass the use of ConceptNet's web API: the dump of ConceptNet triplets, and the ConceptNet Numberbatch pre-computed word embeddings. You can download them from [ConceptNet's](https://github.com/commonsense/conceptnet5/wiki/Downloads) and [Numberbatch's](https://github.com/commonsense/conceptnet-numberbatch) repos, respectively.
+```
+# wget https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
+# wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-19.08.txt.gz
+# gzip -d conceptnet-assertions-5.7.0.csv.gz
+# gzip -d numberbatch-19.08.txt.gz
+```
+
+### 2. generate_cache.py
+This script takes as input the two just-downloaded files and the cache path to where precomputed 1-hop label neighborhoods will be saved. This can take up to 7.2G of storage space.
+```
+usage: generate_cache.py [-h] [-cnp CONCEPTNET_ASSERTIONS_PATH] [-nbp CONCEPTNET_NUMBERBATCH_PATH] [-zcp ZESTE_CACHE_PATH]
+
+Zero-Shot Topic Extraction
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -cnp CONCEPTNET_ASSERTIONS_PATH, --conceptnet_assertions_path CONCEPTNET_ASSERTIONS_PATH
+                        Path to CSV file containing ConceptNet assertions dump
+  -nbp CONCEPTNET_NUMBERBATCH_PATH, --conceptnet_numberbatch_path CONCEPTNET_NUMBERBATCH_PATH
+                        Path to W2V file for ConceptNet Numberbatch
+  -zcp ZESTE_CACHE_PATH, --zeste_cache_path ZESTE_CACHE_PATH
+                        Path to the repository where the generated files will be saved
+```
+
+
+### 3. zeste.py
+This script uses the precomputed 1-hop label neighborhoods to recursively generate label neighborhoods of any given depth (`-d`). It takes also as parameters the path to the dataset CSV file (which should have two columns: `text` and `label`). The rest of the arguments are for model experimentation. 
+
 ```
 usage: zeste.py [-h] [-cp CACHE_PATH] [-pp PREFETCH_PATH] [-nb NUMBERBATCH_PATH] [-dp DATASET_PATH] [-lm LABELS_MAPPING] [-rp RESULTS_PATH]
                 [-d DEPTH] [-f FILTER] [-s {simple,compound,depth,harmonized}] [-ar ALLOWED_RELS]
