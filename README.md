@@ -1,8 +1,10 @@
-![ZeSTE](zeste_logo.png | width=200)
+<img src="zeste_logo.png" width="200"> 
+
+# ZeSTE - Zero-Shot Topic Extraction with Common-Sense Knowledge Graph
 
 This repository contains the code for reproducing the results reported in the paper "Explainable Zero-Shot Topic Extraction with Common-Sense Knowledge Graph" (currently under review for the [LDK 2021 conference](http://2021.ldk-conf.org/)).
 
-# Overview
+## Overview
 This repo is organized as follows:
 * `generate_cache.py`: this script processes the raw ConceptNet dump to produce cached files for each node in ConceptNet to accelerate the label neighborhood generation. It also transforms ConceptNet Numberbatch text file into a Gensim word embedding that we pickle for quick loading.
 * `zeste.py`: this is the main script for evaluation. It takes as argument the dataset to process as well as model configuration parameters such as neighborhood depth (see below). The results (classification report, confusion matrix, and classification metrics) are persisted into text files.
@@ -10,7 +12,7 @@ This repo is organized as follows:
 * `label_mappings`: contains the tab-separated mappings for the studied datasets.
 
 
-# Dependencies
+## Dependencies
 Before running any code in this repo, please install the following dependencies:
 * numpy
 * pandas 
@@ -20,7 +22,7 @@ Before running any code in this repo, please install the following dependencies:
 * tqdm
 * gensim
 
-# Reproducing Results
+## Reproducing Results
 ### 1. Downloads
 The two following files need to be downloaded to bypass the use of ConceptNet's web API: the dump of ConceptNet triplets, and the ConceptNet Numberbatch pre-computed word embeddings. You can download them from [ConceptNet's](https://github.com/commonsense/conceptnet5/wiki/Downloads) and [Numberbatch's](https://github.com/commonsense/conceptnet-numberbatch) repos, respectively.
 ```
