@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - "4997:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - /data/zeste_cache:/data/zeste_cache
+  web:
+    build:
+      context: ./web
+    ports:
+      - "4998:3000"
+    environment:
+      - REACT_APP_SERVER_URL=https://zeste.tools.eurecom.fr/api
