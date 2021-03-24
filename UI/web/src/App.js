@@ -4,14 +4,18 @@ import AsyncSelect from 'react-select/async';
 
 import GlobalStyle from './globalStyle';
 import Term from './components/Term';
+import GitHubForkRibbon from './components/GitHubForkRibbon';
 
 import Lemon from './lemon.png'
 import datasets from './datasets';
+import MEMADLogo from './memad-logo.png';
+import EURECOMLogo from './eurecom-logo.jpg';
+import SILKNOWLogo from './silknow-logo.jpg';
+import ASRAELLogo from './asrael-logo.png';
 
 const Layout = styled.div`
 display: flex;
 flex-direction: row;
-min-height: 100vh;
 
 @media only screen and (max-width: 992px) {
   flex-direction: column;
@@ -145,6 +149,18 @@ const SpinningLemon = styled.div`
   }
 `;
 
+const Footer = styled.div`
+background-color: white;
+color: black;
+padding: 2em;
+box-shadow: inset 1px 4px 9px -6px rgba(0, 0, 0, 0.5);
+display: flex;
+flex-direction: row;
+justify-content: space-evenly;
+align-items: center;
+min-height: 100px;
+`;
+
 const generateExplanations = (paths) => {
   const lis = [];
   paths.forEach((path, i) => {
@@ -246,6 +262,8 @@ function App() {
     <>
       <GlobalStyle />
       <Layout>
+        <GitHubForkRibbon className="right-top" href="https://github.com/D2KLab/ZeSTE" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</GitHubForkRibbon>
+
         <Form>
           <h1>
             <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
@@ -419,6 +437,20 @@ function App() {
           </Results>
         )}
       </Layout>
+      <Footer>
+        <a href="https://www.eurecom.fr" rel="noopener noreferrer">
+          <img src={EURECOMLogo} alt="EURECOM" height="100" />
+        </a>
+        <a href="https://memad.eu" rel="noopener noreferrer">
+          <img src={MEMADLogo} alt="MEMAD" height="100" />
+        </a>
+        <a href="https://silknow.eu" rel="noopener noreferrer">
+          <img src={SILKNOWLogo} alt="SILKNOW" height="200" />
+        </a>
+        <a href="http://asrael.eurecom.fr" rel="noopener noreferrer">
+          <img src={ASRAELLogo} alt="ASRAEL" height="100" />
+        </a>
+      </Footer>
     </>
   );
 }
