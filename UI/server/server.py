@@ -1,14 +1,14 @@
 from fast_autocomplete import AutoComplete
 from flask import Flask, jsonify, request, Blueprint
 from flask_cors import CORS, cross_origin
-from zeste import predict
+# from zeste import predict
 import os
 import json
 import trafilatura
 
 import werkzeug
 werkzeug.cached_property = werkzeug.utils.cached_property
-from flask_restplus import Resource, Api
+from flask_restx import Resource, Api
 
 
 print('Loading autocomplete vocabulary...')
@@ -23,7 +23,7 @@ autocomplete = AutoComplete(words=words)
 
 print('Starting web server...')
 app = Flask(__name__)
-api = Api(app)
+api = Api(app, doc='/api/')
 cors = CORS(app)
 ns = api.namespace('', description='Topic Prediction API')
 
