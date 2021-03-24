@@ -212,12 +212,13 @@ function App() {
         body: JSON.stringify(params)
       })).json();
 
-      if (data && data.error) {
+      if (typeof data.error !== 'undefined') {
         setError(data.error);
       } else {
-        setPredictions(data);
-        if (data[0] && data[0].label) {
-          toggleExplanation(data[0].label);
+        setInputText(data.text);
+        setPredictions(data.results);
+        if (predictions[0] && predictions[0].label) {
+          toggleExplanation(predictions[0].label);
         }
       }
     } catch (err) {
@@ -252,7 +253,6 @@ function App() {
   }
 
   const dataset = datasets.find(dataset => dataset.name === selectedDataset);
-  const datasetLabels = dataset ? dataset.labels : [];
 
   return (
     <>
@@ -267,18 +267,16 @@ function App() {
             <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
           </h1>
 
-          <div>
-            <h2>1. Enter the text for which you want to extract topics</h2>
-          </div>
+          <p><em>Only English is currently supported.</em></p>
+          <h2>1. Enter the URL of a page</h2>
 
           <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>
-            <p><em>Only English is currently supported.</em></p>
+          <div>
+            <input value={inputURL} onChange={(ev) => setInputURL(ev.target.value)} type="url" placeholder="https://example.com" pattern="https://.*" style={{ width: 400 }} />
+          </div>
+            <h2>Or enter the text for which you want to extract topics</h2>
             <div>
               <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
-            </div>
-            <h2>Or enter the URL of a page</h2>
-            <div>
-              <input value={inputURL} onChange={(ev) => setInputURL(ev.target.value)} type="url" placeholder="https://example.com" pattern="https://.*" style={{ width: 400 }} />
             </div>
           </div>
 
@@ -338,7 +336,7 @@ function App() {
             </div>
           </div>
 
-          <button onClick={predict} disabled={isLoading}>Predict The Topics</button>
+          <button onClick={predict} disabled={isLoading} style={{ marginLeft: '1.5em' }}>Predict The Topics</button>
         </Form>
 
         {(isLoading || error !== null || predictions.length > 0) && (
