@@ -8,8 +8,8 @@ import trafilatura
 
 import werkzeug
 werkzeug.cached_property = werkzeug.utils.cached_property
-from flask_restx import Resource, Api
-
+from flask_restx import Resource, Api, fields
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 print('Loading autocomplete vocabulary...')
 words = {}
@@ -23,9 +23,10 @@ autocomplete = AutoComplete(words=words)
 
 print('Starting web server...')
 app = Flask(__name__)
-api = Api(app, doc='/api/')
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+api = Api(app, doc='/doc')
 cors = CORS(app)
-ns = api.namespace('', description='Topic Prediction API')
+ns = api.namespace('api', description='Topic Prediction API')
 
 @ns.route('/status')
 class status_route(Resource):
@@ -42,11 +43,14 @@ class autocomplete_route(Resource):
         suggestions = autocomplete.search(word=q, max_cost=3, size=7)
         return jsonify(suggestions)
 
+resource_fields = api.model('Resource', {
+    'uri': fields.String,
+    'text': fields.String,
+    'labels': fields.String
+})
 
 @ns.route('/predict', methods=['POST'])
-@api.doc(params={'uri': 'Page URI to extract text from and predict topics'})
-@api.doc(params={'text': 'Text used to extract and predict topics'})
-@api.doc(params={'labels': 'Labels separated by ";"'})
+@api.doc(body=resource_fields)
 class predict_route(Resource):
     @ns.doc('predict_route')
     def post(self):
