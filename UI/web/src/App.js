@@ -6,7 +6,7 @@ import GlobalStyle from './globalStyle';
 import Term from './components/Term';
 
 import Lemon from './lemon.png'
-import datasets from './datasets.json';
+import datasets from './datasets';
 
 const Layout = styled.div`
 display: flex;
