@@ -1,7 +1,7 @@
 from fast_autocomplete import AutoComplete
 from flask import Flask, jsonify, request, Blueprint
 from flask_cors import CORS, cross_origin
-# from zeste import predict
+from zeste import predict
 import os
 import json
 import trafilatura
