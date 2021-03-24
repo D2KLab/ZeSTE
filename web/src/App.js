@@ -152,6 +152,7 @@ const datasets = [
   },
   {
     name: 'IPTC',
+    description: 'IPTC: 14 topics coming from the first level of the hierarchy of the IPTC Media Topics defined at <a href="http://cv.iptc.org/newscodes/mediatopic/" rel="noopener noreferrer">http://cv.iptc.org/newscodes/mediatopic/</a>. The list of topics are (alphabetically ordered): art-culture-entertainment, crime-law-justice, disaster-accident, economy-business-finance, environment, health, interest-activity, politics, religion-belief, science-technology, social-issue, sport, unrest-conflict-war, weather.',
     labels: ['art-culture-entertainment', 'crime-law-justice', 'disaster-accident', 'economy-business-finance', 'environment', 'health', 'interest-activity', 'politics', 'religion-belief','science-technology', 'social-issue', 'sport', 'unrest-conflict-war','weather']
   },
 ];
