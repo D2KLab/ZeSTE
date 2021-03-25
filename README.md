@@ -1,16 +1,21 @@
-<div align="center"><img src="zeste_logo.png" width="200"></div>
+<div align="center"><img src="images/zeste_logo.png" width="200"></div>
 
-# ZeSTE - Zero-Shot Topic Extraction with Common-Sense Knowledge Graph
+# Zero-Shot Topic Extraction with Common-Sense Knowledge Graph
 
 This repository contains the code for reproducing the results reported in the paper "Explainable Zero-Shot Topic Extraction with Common-Sense Knowledge Graph" (currently under review for the [LDK 2021 conference](http://2021.ldk-conf.org/)).
 
-## Overview
-This repo is organized as follows:
-* `generate_cache.py`: this script processes the raw ConceptNet dump to produce cached files for each node in ConceptNet to accelerate the label neighborhood generation. It also transforms ConceptNet Numberbatch text file into a Gensim word embedding that we pickle for quick loading.
-* `zeste.py`: this is the main script for evaluation. It takes as argument the dataset to process as well as model configuration parameters such as neighborhood depth (see below). The results (classification report, confusion matrix, and classification metrics) are persisted into text files.
-* `util.py`: contains the functions that are used in `zeste.py`
-* `label_mappings`: contains the tab-separated mappings for the studied datasets.
+A user-friendly demo is available at: http://zeste.tools.eurecom.fr/
 
+## ZeSTE
+Based on ConceptNet's common sense knowledge graph and embeddings, ZeSTE generates explainable predictions for a document topical category (e.g. _politics_, _sports_, _video_games_ ..) without reliance on training data. 
+The following is a high-level illustration of the approach:
+
+<div align="center"><img src="images/zeste_pipeline.png"></div>
+
+
+## API
+ZeSTE can also be accessed via a RESTful API for easy deployment and use.
+For further information, please refer to the documentation: https://zeste.tools.eurecom.fr/doc
 
 ## Dependencies
 Before running any code in this repo, please install the following dependencies:
@@ -21,6 +26,14 @@ Before running any code in this repo, please install the following dependencies:
 * sklearn
 * tqdm
 * gensim
+
+
+## Code Overview
+This repo is organized as follows:
+* `generate_cache.py`: this script processes the raw ConceptNet dump to produce cached files for each node in ConceptNet to accelerate the label neighborhood generation. It also transforms ConceptNet Numberbatch text file into a Gensim word embedding that we pickle for quick loading.
+* `zeste.py`: this is the main script for evaluation. It takes as argument the dataset to process as well as model configuration parameters such as neighborhood depth (see below). The results (classification report, confusion matrix, and classification metrics) are persisted into text files.
+* `util.py`: contains the functions that are used in `zeste.py`
+* `label_mappings`: contains the tab-separated mappings for the studied datasets.
 
 ## Reproducing Results
 ### 1. Downloads
