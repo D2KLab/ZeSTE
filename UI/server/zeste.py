@@ -70,8 +70,10 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all'):
 
 def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'synonym'], keep='top20000'):
     words = words.split('-')
-    ns = []
+    if words > 50:
+        raise Exception('Too many topic labels')
     
+    ns = []
     for word in words:
         ns.append(get_word_neighborhood(word, depth=depth))
     neighborhood = ns[0].copy()
@@ -150,8 +152,9 @@ def get_document_score_and_explain(doc, labels, label_neighborhood):
     return score, sorted(explanation, key=lambda t: -t[1])
 
 
-def generate_json(explanation):
+def generate_json(explanation, doc, labels_neighborhoods):
     response = []
+    tokens = preprocess(doc)
     for label in explanation:
         d = {'label': label, 'score': float(explanation[label][0]), 'terms':[]}
 
@@ -163,12 +166,17 @@ def generate_json(explanation):
             elif len(path) == 5:
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': float(score)})
 
+                
+        ln = labels_neighborhoods[label]
+        d['highlights'] = [[t,str(-1 if t not in ln else ln[t]['sim'])] for t in tokens]
+        
         response.append(d)
         
     total_scores = sum(label['score'] for label in response)
     for label in response:
         label['score'] /= total_scores if total_scores > 0 else 1.
-    
+
+    response = sorted(response, key=lambda l: -l['score'])
     return response
 
 
@@ -178,4 +186,5 @@ def predict(doc, labels_list):
     for label in lns:
         res[label] = get_document_score_and_explain(doc, label, lns[label])
 
-    return generate_json(res)
+    explanation_json = generate_json(res, doc, lns)
+    return explanation_json
