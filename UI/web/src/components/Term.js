@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 const Container = styled.a`
-color: rgb(27, 125, 160);
 text-decoration: none;
 position: relative;
 display: inline-block;

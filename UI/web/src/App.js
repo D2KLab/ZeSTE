@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import AsyncSelect from 'react-select/async';
+import Graph from 'react-graph-vis';
+import { v4 as uuidv4 } from 'uuid';
 
 import GlobalStyle from './globalStyle';
 import Term from './components/Term';
@@ -14,6 +16,7 @@ import SILKNOWLogo from './silknow-logo.jpg';
 import ASRAELLogo from './asrael-logo.png';
 
 const Layout = styled.div`
+background-color: #f9ffec;
 display: flex;
 flex-direction: row;
 
@@ -35,7 +38,7 @@ input, select {
 }
 
 button {
-  background-color: rgb(27, 125, 160);
+  background-color: #82b623;
   color: rgb(255, 255, 255);
   flex: 0 1 120px;
   font-size: 1rem;
@@ -53,8 +56,7 @@ button {
 `;
 
 const Form = styled.div`
-background-color: rgb(217, 217, 217);
-flex: 1;
+flex: 0.7;
 padding: 1rem 2rem;
 `;
 
@@ -75,7 +77,7 @@ padding: 8px;
 `;
 
 const Results = styled.div`
-flex: 0.5;
+flex: 0.6;
 padding: 1rem 2rem;
 box-shadow: 0 0 10px 0px rgba(0,0,0,0.2);
 
@@ -89,11 +91,24 @@ const Confidence = styled.span`
 margin-left: 1em;
 `;
 
-const MainLabel = styled.div`
-font-size: 2rem;
-color: rgb(27, 125, 160);
+const Label = styled.span`
+color: #658b1c;
 font-weight: bold;
+text-transform: capitalize;
+margin-right: 1em;
+width: 120px;
+overflow: hidden;
+text-overflow: ellipsis;
+display: inline-block;
+vertical-align: middle;
+`;
+
+const MainLabel = styled(Label)`
+font-size: 2rem;
 text-transform: uppercase;
+width: auto;
+overflow: visible;
+margin-right: 0;
 margin-bottom: 1em;
 
 & ${Confidence} {
@@ -106,19 +121,6 @@ margin-bottom: 1em;
   font-weight: normal;
 }
 `;
-
-const Label = styled.span`
-color: rgb(27, 125, 160);
-font-weight: bold;
-text-transform: capitalize;
-margin-right: 1em;
-width: 120px;
-overflow: hidden;
-text-overflow: ellipsis;
-display: inline-block;
-vertical-align: middle;
-`;
-
 
 const SpinningLemon = styled.div`
   box-shadow: 52px 74px 223px -9px rgba(255,200,0,1);
@@ -161,6 +163,11 @@ align-items: center;
 min-height: 100px;
 `;
 
+const HighlightTerm = styled.span`
+padding: 0.5em;
+line-height: 2.5em;
+`;
+
 const generateExplanations = (paths) => {
   const lis = [];
   paths.forEach((path, i) => {
@@ -168,6 +175,55 @@ const generateExplanations = (paths) => {
     lis.push(<>[<Term>{path[0]}</Term>] {i === 0 ? 'which' : ''} {relation}{path[2] && <> [<Term>{path[2]}</Term>]</>}.<br /></>);
   });
   return lis;
+}
+
+const graphOptions = {
+  autoResize: true,
+  height: '100%',
+  width: '100%',
+  layout: {
+    hierarchical: false
+  },
+  edges: {
+    color: '#000000'
+  }
+};
+
+function shadeColor(color, percent) {
+  var R = parseInt(color.substring(1,3),16);
+  var G = parseInt(color.substring(3,5),16);
+  var B = parseInt(color.substring(5,7),16);
+
+  R = parseInt(R * (100 + percent) / 100);
+  G = parseInt(G * (100 + percent) / 100);
+  B = parseInt(B * (100 + percent) / 100);
+
+  R = (R<255)?R:255;
+  G = (G<255)?G:255;
+  B = (B<255)?B:255;
+
+  var RR = ((R.toString(16).length === 1)?'0'+R.toString(16):R.toString(16));
+  var GG = ((G.toString(16).length === 1)?'0'+G.toString(16):G.toString(16));
+  var BB = ((B.toString(16).length === 1)?'0'+B.toString(16):B.toString(16));
+
+  return '#'+RR+GG+BB;
+}
+
+function getTextColour(color) {
+  var R = parseInt(color.substring(1,3),16);
+  var G = parseInt(color.substring(3,5),16);
+  var B = parseInt(color.substring(5,7),16);
+
+  R = (R<255)?R:255;
+  G = (G<255)?G:255;
+  B = (B<255)?B:255;
+
+  // http://www.w3.org/TR/AERT#color-contrast
+  const brightness = Math.round(((parseInt(R) * 299) +
+                      (parseInt(G) * 587) +
+                      (parseInt(B) * 114)) / 1000);
+  const textColour = (brightness > 125) ? 'black' : 'white';
+  return textColour;
 }
 
 function App() {
@@ -180,6 +236,29 @@ function App() {
   const [ visibleExplanations, setVisibleExplanations ] = useState({});
   const [ showMoreExplanations, setShowMoreExplanations ] = useState({});
   const [ selectedDataset, setSelectedDataset ] = useState(null);
+  const ref = useRef(null);
+
+  const [graphState, setGraphState] = useState({
+    counter: 5,
+    graph: { nodes: [], edges: [] },
+    events: {
+      select: ({ nodes, edges }) => {
+        console.log('Selected nodes:');
+        console.log(nodes);
+        console.log('Selected edges:');
+        console.log(edges);
+      },
+      doubleClick: ({ pointer: { canvas } }) => {
+      }
+    }
+  });
+  useEffect(() => {
+    console.log(ref.current);
+    if (ref.current) {
+      ref.current.Network.moveTo({ scale: 1 });
+    }
+  }, [graphState]);
+  const { graph, events } = graphState;
 
   const onLoadOptions = async (value) => {
     const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/autocomplete?q=${encodeURIComponent(value)}`)).json();
@@ -221,8 +300,52 @@ function App() {
       } else {
         setInputText(data.text);
         setPredictions(data.results);
-        if (predictions[0] && predictions[0].label) {
-          toggleExplanation(predictions[0].label);
+
+        if (data.results[0] && data.results[0].label) {
+          toggleExplanation(data.results[0].label);
+
+          const highlights = {};
+          if (Array.isArray(data.results[0].highlights)) {
+            data.results[0].highlights.forEach(highlight => {
+              highlights[highlight[0]] = highlight[1];
+            });
+          }
+
+          setGraphState(({ graph: { nodes, edges }, counter, ...rest }) => {
+            const idsCache = [];
+            const id = counter + 1;
+            return {
+              graph: {
+                nodes: data.results[0].terms.slice(0, 10).reduce((acc, cur) => {
+                    cur.paths.forEach(path => {
+                      if (typeof path[2] !== 'undefined') {
+                        const backgroundColor = shadeColor('#4bff00', -highlights[path[0]] * 100);
+                        const textColor = getTextColour(backgroundColor);
+                        if (!idsCache.includes(path[0])) {
+                          acc.push({ id: path[0], label: path[0], color: backgroundColor, font: { color: textColor } });
+                          idsCache.push(path[0]);
+                        }
+                        if (!idsCache.includes(path[2])) {
+                          acc.push({ id: path[2], label: path[2], color: backgroundColor, font: { color: textColor } });
+                          idsCache.push(path[2]);
+                        }
+                      }
+                    });
+                    return acc;
+                  }, []),
+                edges: data.results[0].terms.reduce((acc, cur) => {
+                    cur.paths.forEach(path => {
+                      if (typeof path[1] !== 'undefined' && typeof path[2] !== 'undefined') {
+                        acc.push({ from: path[0], to: path[2] })
+                      }
+                    });
+                    return acc;
+                  }, []),
+                counter: id,
+                ...rest
+              }
+            };
+          });
         }
       }
     } catch (err) {
@@ -363,11 +486,24 @@ function App() {
             {Array.isArray(predictions) && predictions.length > 0 && (
               <>
                 <h2>The predicted main topic is:</h2>
-                <div>
+
+                <div style={{ marginBottom: '1em' }}>
                   <MainLabel>
                     <Term>{predictions[0].label}</Term>
                     <Confidence>Confidence: {(predictions[0].score * 100).toFixed(2)}%</Confidence>
                   </MainLabel>
+                </div>
+
+                <div style={{ display: 'flex', height: '300px', marginBottom: '1em' }}>
+                  <Graph key={uuidv4()} graph={graph} options={graphOptions} events={events} ref={ref} />
+                </div>
+
+                <div style={{ marginBottom: '1em' }}>
+                  {Array.isArray(predictions[0].highlights) && predictions[0].highlights.map(highlight => {
+                    const backgroundColor = shadeColor('#4bff00', -highlight[1] * 100);
+                    const textColor = getTextColour(backgroundColor);
+                    return <><HighlightTerm style={{ backgroundColor, color: textColor }}>{highlight[0]}</HighlightTerm>{' '}</>;
+                  })}
                 </div>
 
                 <div style={{ marginBottom: '1em' }}>

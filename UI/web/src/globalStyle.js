@@ -31,7 +31,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   a {
-    color: rgb(27, 125, 160);
+    color: #82b623;
   }
 
   .react-autosuggest__container {
