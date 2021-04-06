@@ -236,7 +236,8 @@ function App() {
   const [ visibleExplanations, setVisibleExplanations ] = useState({});
   const [ showMoreExplanations, setShowMoreExplanations ] = useState({});
   const [ selectedDataset, setSelectedDataset ] = useState(null);
-  const ref = useRef(null);
+  const [ datasetError, setDatasetError ] = useState(undefined);
+  const graphRef = useRef(null);
 
   const [graphState, setGraphState] = useState({
     counter: 5,
@@ -253,9 +254,8 @@ function App() {
     }
   });
   useEffect(() => {
-    console.log(ref.current);
-    if (ref.current) {
-      ref.current.Network.moveTo({ scale: 1 });
+    if (graphRef.current) {
+      graphRef.current.Network.moveTo({ scale: 1 });
     }
   }, [graphState]);
   const { graph, events } = graphState;
@@ -268,10 +268,10 @@ function App() {
 
   const predict = async () => {
     setPredictions([]);
-    setIsLoading(true);
     setError(null);
     setVisibleExplanations({});
     setShowMoreExplanations({});
+    setDatasetError(undefined);
 
     const dataset = datasets.find(dataset => dataset.name === selectedDataset);
     const datasetLabels = dataset ? dataset.labels : [];
@@ -284,8 +284,15 @@ function App() {
       params.text = inputText;
     }
 
+    if (params.labels.length === 0) {
+      setDatasetError('Please select at least one topic.');
+      return;
+    }
+
     let data;
     try {
+      setIsLoading(true);
+
       data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/predict`, {
         method: 'POST',
         headers: {
@@ -372,10 +379,12 @@ function App() {
 
   const onChangeDataset = (ev) => {
     ev.preventDefault();
+    setDatasetError(undefined);
     setSelectedDataset(ev.target.value);
   }
 
   const handleSelectLabel = (items) => {
+    setDatasetError(undefined);
     setUserLabels(items.map(item => item.value));
   }
 
@@ -463,6 +472,8 @@ function App() {
                 </div>
               </div>
             </div>
+
+            {datasetError && <div style={{ marginLeft: '1.5em', marginBottom: '1em', color: 'red' }}>{datasetError}</div>}
           </div>
 
           <button onClick={predict} disabled={isLoading} style={{ marginLeft: '1.5em' }}>Predict The Topics</button>
@@ -495,7 +506,7 @@ function App() {
                 </div>
 
                 <div style={{ display: 'flex', height: '300px', marginBottom: '1em' }}>
-                  <Graph key={uuidv4()} graph={graph} options={graphOptions} events={events} ref={ref} />
+                  <Graph key={uuidv4()} graph={graph} options={graphOptions} events={events} ref={graphRef} />
                 </div>
 
                 <div style={{ marginBottom: '1em' }}>
