@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import AsyncSelect from 'react-select/async';
 import Graph from 'react-graph-vis';
 import { v4 as uuidv4 } from 'uuid';
+import { useMenuState, Menu, MenuItem, MenuButton } from 'reakit/Menu';
+import ReactCountryFlag from 'react-country-flag';
 
 import GlobalStyle from './globalStyle';
 import Term from './components/Term';
@@ -36,23 +38,23 @@ input, select {
   min-height: 38px;
   padding: 0px 8px;
 }
+`;
 
-button {
-  background-color: #82b623;
-  color: rgb(255, 255, 255);
-  flex: 0 1 120px;
-  font-size: 1rem;
-  padding: 0.5em;
-  appearance: none;
-  border: none;
-  border-radius: 0px;
-  cursor: pointer;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
-}
+const PrimaryButton = styled.button`
+background-color: #82b623;
+color: rgb(255, 255, 255);
+flex: 0 1 120px;
+font-size: 1rem;
+padding: 0.5em;
+appearance: none;
+border: none;
+border-radius: 0px;
+cursor: pointer;
+text-decoration: none;
+display: flex;
+align-items: center;
+justify-content: center;
+pointer-events: auto;
 `;
 
 const Form = styled.div`
@@ -168,6 +170,82 @@ padding: 0.5em;
 line-height: 2.5em;
 `;
 
+const StyledMenu = styled(Menu)`
+max-height: 300px;
+overflow-y: auto;
+padding-bottom: 4px;
+padding-top: 4px;
+position: relative;
+-webkit-overflow-scrolling: touch;
+box-sizing: border-box;
+outline: 0;
+background-color: hsl(0, 0%, 100%);
+border-radius: 4px;
+box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.1), 0 4px 11px hsla(0, 0%, 0%, 0.1);
+margin-bottom: 8px;
+margin-top: 8px;
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+background-color: transparent;
+color: inherit;
+cursor: default;
+display: block;
+font-size: inherit;
+padding: 8px 12px;
+width: 100%;
+user-select: none;
+box-sizing: border-box;
+border: 0;
+border-radius: 0;
+outline: 0;
+
+&:hover {
+  background-color: #deebff;
+  color: inherit;
+  cursor: default;
+  display: block;
+  font-size: inherit;
+  padding: 8px 12px;
+  width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  box-sizing: border-box;
+}
+
+&:active {
+  background-color: #b2d4ff;
+}
+
+&.selected {
+  background-color: #82b623;
+  color: hsl(0, 0%, 100%);
+  cursor: default;
+  display: block;
+  font-size: inherit;
+  padding: 8px 12px;
+  width: 100%;
+  user-select: none;
+  box-sizing: border-box;
+}
+`;
+
+const FlagButton = styled(MenuButton)`
+cursor: pointer;
+border-width: 0 0 2px;
+border-color: black;
+background-color: rgb(240, 240, 240);
+outline: 0;
+padding: 0 12px;
+
+&:hover {
+  background-color: rgb(210, 210, 210);
+}
+`;
+
 const generateExplanations = (paths) => {
   const lis = [];
   paths.forEach((path, i) => {
@@ -237,6 +315,7 @@ function App() {
   const [ showMoreExplanations, setShowMoreExplanations ] = useState({});
   const [ selectedDataset, setSelectedDataset ] = useState(null);
   const [ datasetError, setDatasetError ] = useState(undefined);
+  const [ language, setLanguage ] = useState(Object.keys(datasets)[0]);
   const graphRef = useRef(null);
 
   const [graphState, setGraphState] = useState({
@@ -261,7 +340,7 @@ function App() {
   const { graph, events } = graphState;
 
   const onLoadOptions = async (value) => {
-    const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/autocomplete?q=${encodeURIComponent(value)}`)).json();
+    const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/autocomplete?q=${encodeURIComponent(value)}&hl=${language}`)).json();
     const suggestions = data.map(item => ({ value: item[0], label: item[0] }));
     return suggestions;
   };
@@ -273,10 +352,11 @@ function App() {
     setShowMoreExplanations({});
     setDatasetError(undefined);
 
-    const dataset = datasets.find(dataset => dataset.name === selectedDataset);
+    const dataset = datasets[language].find(dataset => dataset.name === selectedDataset);
     const datasetLabels = dataset ? dataset.labels : [];
     const params = {
       labels: [...userLabels, ...datasetLabels].join(';'),
+      language,
     };
     if (inputURL.length > 0) {
       params.uri = inputURL;
@@ -388,7 +468,9 @@ function App() {
     setUserLabels(items.map(item => item.value));
   }
 
-  const dataset = datasets.find(dataset => dataset.name === selectedDataset);
+  const dataset = datasets[language].find(dataset => dataset.name === selectedDataset);
+
+  const languageMenu = useMenuState();
 
   return (
     <>
@@ -423,9 +505,40 @@ function App() {
 
             <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>
               <form onSubmit={onChangeDataset} style={{ display: 'flex' }}>
+                <StyledMenu {...languageMenu} tabIndex={0} aria-label="Preferences">
+                <StyledMenuItem
+                    {...languageMenu}
+                    key={"en"}
+                    className={language === 'en' ? 'selected' : ''}
+                    onClick={() => {
+                      setLanguage('en');
+                      languageMenu.hide();
+                    }}
+                  >
+                    <ReactCountryFlag countryCode="US" svg />
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    {...languageMenu}
+                    key={"fr"}
+                    className={language === 'fr' ? 'selected' : ''}
+                    onClick={() => {
+                      setLanguage('fr');
+                      languageMenu.hide();
+                    }}
+                  >
+                    <ReactCountryFlag countryCode="FR" svg />
+                  </StyledMenuItem>
+                </StyledMenu>
+                <FlagButton
+                  {...languageMenu}
+                  name="language"
+                >
+                  <ReactCountryFlag countryCode={language === 'fr' ? 'FR' : 'US'} svg />
+                </FlagButton>
+
                 <select onChange={onChangeDataset} style={{ marginRight: '1em', width: 400 }}>
                   <option value=""> </option>
-                  {datasets.map(item => (
+                  {datasets[language].map(item => (
                     <option value={item.name}>{item.name}</option>
                   ))}
                 </select>
@@ -476,7 +589,7 @@ function App() {
             {datasetError && <div style={{ marginLeft: '1.5em', marginBottom: '1em', color: 'red' }}>{datasetError}</div>}
           </div>
 
-          <button onClick={predict} disabled={isLoading} style={{ marginLeft: '1.5em' }}>Predict The Topics</button>
+          <PrimaryButton onClick={predict} disabled={isLoading} style={{ marginLeft: '1.5em' }}>Predict The Topics</PrimaryButton>
         </Form>
 
         {(isLoading || error !== null || predictions.length > 0) && (
@@ -535,7 +648,7 @@ function App() {
                     </div>
                     {predictions[0].terms.length > 10 && (
                       <div style={{ marginLeft: '2.5em' }}>
-                        <button onClick={() => { toggleMoreExplanations(predictions[0].label); }}>show {showMoreExplanations[predictions[0].label] ? 'less' : 'more'}</button>
+                        <PrimaryButton onClick={() => { toggleMoreExplanations(predictions[0].label); }}>show {showMoreExplanations[predictions[0].label] ? 'less' : 'more'}</PrimaryButton>
                       </div>
                     )}
                   </div>
@@ -568,7 +681,7 @@ function App() {
                                 </div>
                                 {prediction.terms.length > 10 && (
                                   <div style={{ marginLeft: '2.5em' }}>
-                                    <button onClick={() => { toggleMoreExplanations(prediction.label); }}>show {showMoreExplanations[prediction.label] ? 'less' : 'more'}</button>
+                                    <PrimaryButton onClick={() => { toggleMoreExplanations(prediction.label); }}>show {showMoreExplanations[prediction.label] ? 'less' : 'more'}</PrimaryButton>
                                   </div>
                                 )}
                               </>
