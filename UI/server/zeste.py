@@ -11,7 +11,9 @@ import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-numberbatch = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08-en.pickle", 'rb'))
+numberbatch_en = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08.pickle", 'rb'))
+numberbatch_fr = pickle.load(open("/data/zeste_cache/numberbatch-fr-19.08.pickle", 'rb'))
+numberbatch = None
 
 print('Loading relations descriptions...')
 relations = {}
@@ -37,7 +39,7 @@ def preprocess(doc, language='en'):
     return tokens
 
 
-def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en):
+def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en'):
     neighborhood = pickle.load(open('/data/zeste_cache/neighborhoods_'+language+'/'+word+'.pickle', 'rb'))
     neighborhood_words = list(neighborhood.keys())
 
@@ -51,7 +53,7 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en):
         additions = []
         while len(to_visit_next) > 0:
             w = to_visit_next.pop()
-            nn = get_word_neighborhood(w, depth=1, allowed_rels=allowed_rels)
+            nn = get_word_neighborhood(w, depth=1, allowed_rels=allowed_rels, language=language)
             for ww in nn:
                 if ww in neighborhood:
                     neighborhood[ww]['from'].append(w)
@@ -73,7 +75,7 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en):
 
 def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'synonym'], language = 'en', keep='top20000'):
     words = words.split('-')
-    if words > 50:
+    if len(words) > 50:
         raise Exception('Too many topic labels')
     
     ns = []
@@ -184,6 +186,8 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
 
 
 def predict(doc, labels_list, language):
+    global numberbatch 
+    numberbatch = numberbatch_fr if language == 'fr' else numberbatch_en
     lns = generate_label_neighborhoods(labels_list, language)
     res = {}
     for label in lns:
