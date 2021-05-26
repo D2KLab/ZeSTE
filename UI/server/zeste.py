@@ -23,19 +23,22 @@ if os.path.exists(relations_filepath):
         items = line.strip().split('\t')
         relations[items[0].strip()] = items[1].strip()
 
-def preprocess(doc):
+def preprocess(doc, language='en'):
     lemmatizer = WordNetLemmatizer()
 
     doc = doc.replace("'ll", ' will').replace("s' ", 's').replace("'s", '').replace("-", '_')
     doc = ''.join(c for c in doc if c not in '!"#$%&\'()*+,./:;<=>?@[\\]^`{|}~')
-    tokens = [w for w in doc.lower().split(' ') if w not in stopwords.words('english')]
-    tokens = [lemmatizer.lemmatize(w) for w in tokens if w != '']
+    tokens = [w for w in doc.lower().split(' ') if w not in stopwords.words('english' if language == 'en' else 'french')]
+    if language == 'en':
+        tokens = [lemmatizer.lemmatize(w) for w in tokens if w != '']
+    else:
+        tokens = [w for w in tokens if w != '']
 
     return tokens
 
 
-def get_word_neighborhood(word, depth=2, allowed_rels='all'):
-    neighborhood = pickle.load(open('/data/zeste_cache/neighborhoods/'+word+'.pickle', 'rb'))
+def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en):
+    neighborhood = pickle.load(open('/data/zeste_cache/neighborhoods_'+language+'/'+word+'.pickle', 'rb'))
     neighborhood_words = list(neighborhood.keys())
 
     if allowed_rels != 'all':
@@ -68,14 +71,14 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all'):
 
 
 
-def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'synonym'], keep='top20000'):
+def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'synonym'], language = 'en', keep='top20000'):
     words = words.split('-')
     if words > 50:
         raise Exception('Too many topic labels')
     
     ns = []
     for word in words:
-        ns.append(get_word_neighborhood(word, depth=depth))
+        ns.append(get_word_neighborhood(word, depth=depth, language=language))
     neighborhood = ns[0].copy()
     
     for w, nn in zip(words[1:], ns[1:]):
@@ -92,16 +95,16 @@ def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'sy
 
     return neighborhood
 
-def generate_label_neighborhoods(labels_list):
+def generate_label_neighborhoods(labels_list, language):
     label_neighborhoods = {}
     for label in labels_list:
-        path = '/data/zeste_cache/demo_cache/'+label+'.pickle'
+        path = '/data/zeste_cache/demo_cache/'+label+ ('.pickle' if  language == 'en' else '_fr.pickle')    
         if os.path.exists(path):
             logging.info('Loading cached neighborhood for the label "'+ label +'"')
             label_neighborhoods[label] = pickle.load(open(path, 'rb'))
         else:
             logging.info('Generating neighborhood for the label "'+ label +'"')
-            label_neighborhoods[label] = get_words_neighborhood(label, depth=2, allowed_rels='all')
+            label_neighborhoods[label] = get_words_neighborhood(label, depth=2, allowed_rels='all', language=language)
             pickle.dump(label_neighborhoods[label], open(path, 'wb'))
     return label_neighborhoods
 
@@ -124,8 +127,8 @@ def find_best_path(word, label, label_neighborhood):
                 return  None
 
 
-def get_document_score_and_explain(doc, labels, label_neighborhood):
-    tokens = preprocess(doc)
+def get_document_score_and_explain(doc, labels, label_neighborhood, language):
+    tokens = preprocess(doc, language)
     related_words = []
     score = 0
     for token in tokens:
@@ -152,9 +155,9 @@ def get_document_score_and_explain(doc, labels, label_neighborhood):
     return score, sorted(explanation, key=lambda t: -t[1])
 
 
-def generate_json(explanation, doc, labels_neighborhoods):
+def generate_json(explanation, doc, labels_neighborhoods, language):
     response = []
-    tokens = preprocess(doc)
+    tokens = preprocess(doc, language)
     for label in explanation:
         d = {'label': label, 'score': float(explanation[label][0]), 'terms':[]}
 
@@ -180,11 +183,11 @@ def generate_json(explanation, doc, labels_neighborhoods):
     return response
 
 
-def predict(doc, labels_list):
-    lns = generate_label_neighborhoods(labels_list)
+def predict(doc, labels_list, language):
+    lns = generate_label_neighborhoods(labels_list, language)
     res = {}
     for label in lns:
-        res[label] = get_document_score_and_explain(doc, label, lns[label])
+        res[label] = get_document_score_and_explain(doc, label, lns[label], language)
 
-    explanation_json = generate_json(res, doc, lns)
+    explanation_json = generate_json(res, doc, lns, language)
     return explanation_json

@@ -26,7 +26,17 @@ const datasets = {
       "labels": ["business", "politics", "science-technology", "sport"]
     }
   ],
-  "fr": []
+  "fr": [
+    {
+      "name": "MeMAD-INA",
+      "description": "11 content theme tags from the INA professional archive. cinéma, humour, information, littérature, musique, politique, religion, société, sport, travail, variété.",
+      "labels": ["cinéma", "humour", "information", "littérature", "musique", "politique", "religion", "société", "sport", "travail", "variété"]
+    },
+    {
+      "name": "IPTC",
+      "description": "IPTC: 17 topics coming from the first level of the hierarchy of the IPTC Media Topics defined at <a href=\"http://cv.iptc.org/newscodes/mediatopic/\" rel=\"noopener noreferrer\">http://cv.iptc.org/newscodes/mediatopic/</a>. The list of topics are (alphabetically ordered): art-culture-divertissement, crime-loi-justice, disastre-accident, économie-affaires-finance, éducation, environnement, santé, intérêt-activité, travail, loisir, politique, religion-croyance, science-technologie, société, sport, conflit-guerre, and météo.",
+      "labels": ["art-culture-divertissement", "crime-loi-justice", "disastre-accident", "économie-affaires-finance", "éducation", "environnement", "santé", "intérêt-activité", "travail", "loisir", "politique", "religion-croyance", "science-technologie", "société", "sport", "conflit-guerre", "météo"]
+    },]
 };
 
 export default datasets;
