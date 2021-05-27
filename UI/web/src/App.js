@@ -487,7 +487,7 @@ function App() {
             <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
           </h1>
 
-          <p><em>Only English is currently supported.</em></p>
+          <p><em>Only English and French are currently supported.</em></p>
           <h2>1. Enter the URL of a page</h2>
 
           <div style={{ marginLeft: '1.5em', marginBottom: '2em' }}>

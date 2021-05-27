@@ -13,7 +13,6 @@ nltk.download('wordnet')
 
 numberbatch_en = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08.pickle", 'rb'))
 numberbatch_fr = pickle.load(open("/data/zeste_cache/numberbatch-fr-19.08.pickle", 'rb'))
-numberbatch = None
 
 print('Loading relations descriptions...')
 relations = {}
@@ -62,13 +61,16 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en'):
                     neighborhood[ww] = {}
                     neighborhood[ww]['from'] = [w]
                     neighborhood[ww]['rels'] = nn[ww]['rels']
-                    if word in numberbatch and ww in numberbatch:
-                        neighborhood[ww]['sim'] = numberbatch.similarity(word, ww)
+                    if (language == 'en' and word in numberbatch_en and ww in numberbatch_en):
+                        neighborhood[ww]['sim'] = numberbatch_en.similarity(word, ww)
+                    elif (language == 'fr' and '/c/fr/'+word in numberbatch_fr and '/c/fr/'+ww in numberbatch_fr):
+                        neighborhood[ww]['sim'] = numberbatch_fr.similarity('/c/fr/'+word, '/c/fr/'+ww)
                     else:
                         neighborhood[ww]['sim'] = 0.0
                     additions.append(ww)
         to_visit_next = additions
         depth -= 1
+        
     return neighborhood
 
 
@@ -112,7 +114,7 @@ def generate_label_neighborhoods(labels_list, language):
 
 
 
-def find_best_path(word, label, label_neighborhood):
+def find_best_path(word, label, label_neighborhood, language):
     if word == label:
         return (word, 'is_label')
 
@@ -121,8 +123,9 @@ def find_best_path(word, label, label_neighborhood):
 
     for ww in label_neighborhood[word]['from']:
         paths = []
-        if label in label_neighborhood[ww]['from']:
-            nw = pickle.load(open('/data/zeste_cache/neighborhoods/'+ww+'.pickle', 'rb'))
+        word_path = '/data/zeste_cache/demo_cache/'+ww+ ('.pickle' if language=='en' else '_fr.pickle')
+        if label in label_neighborhood[ww]['from'] and os.path.exists(word_path):
+            nw = pickle.load(open(word_path), 'rb')
             if word in nw:
                 return (word, nw[word]['rels'][-1], ww, label_neighborhood[ww]['rels'][-1], label)
             else:
@@ -149,7 +152,7 @@ def get_document_score_and_explain(doc, labels, label_neighborhood, language):
         
     for label in labels:
         for word, similarity in related_words:
-            best_path = find_best_path(word, label, label_neighborhood)
+            best_path = find_best_path(word, label, label_neighborhood, language)
             if best_path:
                 explanation.append((best_path, similarity))
         explanation = list(set(explanation))
@@ -170,7 +173,6 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]]], 'score': float(score)})
             elif len(path) == 5:
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': float(score)})
-
                 
         ln = labels_neighborhoods[label]
         d['highlights'] = [[t,str(-1 if t not in ln else ln[t]['sim'])] for t in tokens]

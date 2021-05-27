@@ -12,14 +12,23 @@ from flask_restx import Resource, Api, fields
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 print('Loading autocomplete vocabulary...')
-words = {}
+words_en = {}
 vocab_filepath = '/data/zeste_cache/vocab.txt'
 if os.path.exists(vocab_filepath):
     vocab_file = open(vocab_filepath, 'r')
     lines = vocab_file.readlines()
     for line in lines:
-        words[line.strip()] = {}
-autocomplete = AutoComplete(words=words)
+        words_en[line.strip()] = {}
+autocomplete_en = AutoComplete(words=words_en)
+
+words_fr = {}
+vocab_filepath = '/data/zeste_cache/vocab_fr.txt'
+if os.path.exists(vocab_filepath):
+    vocab_file = open(vocab_filepath, 'r')
+    lines = vocab_file.readlines()
+    for line in lines:
+        words_fr[line.strip()] = {}
+autocomplete_fr = AutoComplete(words=words_fr)
 
 print('Starting web server...')
 app = Flask(__name__)
@@ -35,11 +44,16 @@ class status_route(Resource):
 
 
 @ns.route('/autocomplete', methods=['GET'])
-@api.doc(params={'q': 'Search keywords'})
+@api.doc(params={'q': 'Search keywords', 'hl': 'Language'})
 class autocomplete_route(Resource):
     @ns.doc('autocomplete_route')
     def get(self):
         q = request.args.get('q')
+        hl = request.args.get('hl')
+        if hl == 'en':
+            autocomplete = autocomplete_en
+        else:
+            autocomplete = autocomplete_fr
         suggestions = autocomplete.search(word=q, max_cost=3, size=7)
         return jsonify(suggestions)
 
