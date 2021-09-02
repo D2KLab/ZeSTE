@@ -2,7 +2,7 @@
 
 # Zero-Shot Topic Extraction with Common-Sense Knowledge Graph
 
-This repository contains the code for reproducing the results reported in the paper ["Explainable Zero-Shot Topic Extraction with Common-Sense Knowledge Graph" (pdf)](https://drops.dagstuhl.de/opus/volltexte/2021/14553/pdf/OASIcs-LDK-2021-17.pdf) at the [LDK 2021](http://2021.ldk-conf.org/))  conference.
+This repository contains the code for reproducing the results reported in the paper ["Explainable Zero-Shot Topic Extraction with Common-Sense Knowledge Graph" (pdf)](https://drops.dagstuhl.de/opus/volltexte/2021/14553/pdf/OASIcs-LDK-2021-17.pdf) at the [LDK 2021](http://2021.ldk-conf.org/)  Conference.
 
 A user-friendly demo is available at: http://zeste.tools.eurecom.fr/
 
