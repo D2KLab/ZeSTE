@@ -94,3 +94,19 @@ optional arguments:
   -ar ALLOWED_RELS, --allowed_rels ALLOWED_RELS
                         Which relationships to use (comma-separated or all)
 ```
+
+### Cite this work
+```
+@InProceedings{harrando_et_al_zeste_2021,
+  author ={Harrando, Ismail and Troncy, Rapha\"{e}l},
+  title ={{Explainable Zero-Shot Topic Extraction Using a Common-Sense Knowledge Graph}},
+  booktitle ={3rd Conference on Language, Data and Knowledge (LDK 2021)},
+  pages ={17:1--17:15},
+  year ={2021},
+  volume ={93},
+  publisher ={Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+  URL ={https://drops.dagstuhl.de/opus/volltexte/2021/14553},
+  URN ={urn:nbn:de:0030-drops-145532},
+  doi ={10.4230/OASIcs.LDK.2021.17},
+}
+```
