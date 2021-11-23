@@ -3,8 +3,8 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'Eloquia Text';
-    src: url('fonts/EloquiaText-ExtraLight.woff2') format('woff2'),
-        url('fonts/EloquiaText-ExtraLight.woff') format('woff');
+    src: url('assets/fonts/EloquiaText-ExtraLight.woff2') format('woff2'),
+        url('assets/fonts/EloquiaText-ExtraLight.woff') format('woff');
     font-weight: 200;
     font-style: normal;
     font-display: swap;
@@ -12,8 +12,8 @@ const GlobalStyle = createGlobalStyle`
 
   @font-face {
     font-family: 'Eloquia Display';
-    src: url('fonts/EloquiaDisplay-ExtraBold.woff2') format('woff2'),
-        url('fonts/EloquiaDisplay-ExtraBold.woff') format('woff');
+    src: url('assets/fonts/EloquiaDisplay-ExtraBold.woff2') format('woff2'),
+        url('assets/fonts/EloquiaDisplay-ExtraBold.woff') format('woff');
     font-weight: bold;
     font-style: normal;
     font-display: swap;

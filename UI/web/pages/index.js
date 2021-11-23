@@ -1,20 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import Image from 'next/image';
 import AsyncSelect from 'react-select/async';
 import Graph from 'react-graph-vis';
 import { v4 as uuidv4 } from 'uuid';
 import { useMenuState, Menu, MenuItem, MenuButton } from 'reakit/Menu';
 import ReactCountryFlag from 'react-country-flag';
 
-import Term from '../components/Term';
-import GitHubForkRibbon from '../components/GitHubForkRibbon';
+import Term from '@/components/Term';
+import GitHubForkRibbon from '@/components/GitHubForkRibbon';
 
-import Lemon from '../assets/images/lemon.png'
-import MEMADLogo from '../assets/images/memad-logo.png';
-import EURECOMLogo from '../assets/images/eurecom-logo.jpg';
-import SILKNOWLogo from '../assets/images/silknow-logo.jpg';
-import ASRAELLogo from '../assets/images/asrael-logo.png';
-import datasets from '../assets/datasets.json';
+import Lemon from '@/assets/images/lemon.png'
+import MEMADLogo from '@/assets/images/memad-logo.png';
+import EURECOMLogo from '@/assets/images/eurecom-logo.jpg';
+import SILKNOWLogo from '@/assets/images/silknow-logo.jpg';
+import ASRAELLogo from '@/assets/images/asrael-logo.png';
+import datasets from '@/assets/datasets.json';
 
 const Container = styled.div`
 background-color: #f9ffec;
@@ -499,7 +500,7 @@ function App({ reactAppServerUrl }) {
           <h1>
             <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
             {' '}
-            <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
+            <Image src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
             {' '}
             <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
           </h1>
@@ -666,7 +667,7 @@ function App({ reactAppServerUrl }) {
                       <div>
                           {predictions[0].terms.slice(0, showMoreExplanations[predictions[0].label] ? undefined : 10).map(term => {
                             const explanations = generateExplanations(term.paths);
-                            return <ul><li>{explanations}</li></ul>;
+                            return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
                           })}
                       </div>
                       {predictions[0].terms.length > 10 && (
@@ -687,7 +688,7 @@ function App({ reactAppServerUrl }) {
                       <div>
                         {predictions.slice(1).map(prediction => {
                           return (
-                            <div id={prediction.label} style={{ marginBottom: '1em' }}>
+                            <div key={prediction.label} id={prediction.label} style={{ marginBottom: '1em' }}>
                               <div>
                                 <Label title={prediction.label}><Term>{prediction.label}</Term></Label> Confidence: {(prediction.score * 100).toFixed(2)}%
                                 {' '}
@@ -699,7 +700,7 @@ function App({ reactAppServerUrl }) {
                                   <div>
                                     {prediction.terms.slice(0, showMoreExplanations[prediction.label] ? undefined : 10).map(term => {
                                       const explanations = generateExplanations(term.paths);
-                                      return <ul><li>{explanations}</li></ul>;
+                                      return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
                                     })}
                                   </div>
                                   {prediction.terms.length > 10 && (
@@ -723,16 +724,16 @@ function App({ reactAppServerUrl }) {
       </Container>
       <Footer>
         <a href="https://www.eurecom.fr" target="_blank" rel="noopener noreferrer">
-          <img src={EURECOMLogo.src} alt="EURECOM" height="100" />
+          <Image src={EURECOMLogo.src} alt="EURECOM" height="100" />
         </a>
         <a href="https://memad.eu" target="_blank" rel="noopener noreferrer">
-          <img src={MEMADLogo.src} alt="MEMAD" height="100" />
+          <Image src={MEMADLogo.src} alt="MEMAD" height="100" />
         </a>
         <a href="https://silknow.eu" target="_blank" rel="noopener noreferrer">
-          <img src={SILKNOWLogo.src} alt="SILKNOW" width="200" />
+          <Image src={SILKNOWLogo.src} alt="SILKNOW" width="200" />
         </a>
         <a href="http://asrael.eurecom.fr" target="_blank" rel="noopener noreferrer">
-          <img src={ASRAELLogo.src} alt="ASRAEL" height="100" />
+          <Image src={ASRAELLogo.src} alt="ASRAEL" height="100" />
         </a>
       </Footer>
     </>

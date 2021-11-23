@@ -1,7 +1,9 @@
 import styled from 'styled-components';
+import Image from 'next/image';
+import Link from 'next/link';
 import { Github as GithubIcon } from '@styled-icons/evaicons-solid/Github';
 
-import Lemon from '../assets/images/lemon.png'
+import Lemon from '@/assets/images/lemon.png'
 
 const Container = styled.header`
 display: flex;
@@ -54,19 +56,21 @@ export default function Header() {
       <DesktopTitle>
         <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
         {' '}
-        <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
+        <Image src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
         {' '}
         <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
       </DesktopTitle>
       <MobileTitle>
         <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
         {' '}
-        <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
+        <Image src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
       </MobileTitle>
       <Menu>
-        <a href="/predict">Predict</a>
-        <a href="/labels">Labels</a>
-        <a href="https://github.com/D2KLab/ZeSTE" target="_blank" rel="noopener noreferrer"><GithubIcon height="1rem" /> GitHub</a>
+        <Link href="/predict"><a>Predict</a></Link>
+        <Link href="/labels"><a>Labels</a></Link>
+        <Link href="https://github.com/D2KLab/ZeSTE" target="_blank" rel="noopener noreferrer">
+          <a><GithubIcon height="1rem" /> GitHub</a>
+        </Link>
       </Menu>
     </Container>
   );

@@ -13,14 +13,14 @@ import ReactCountryFlag from 'react-country-flag';
 import { Show as ShowIcon } from '@styled-icons/boxicons-regular/Show';
 import { Hide as HideIcon } from '@styled-icons/boxicons-regular/Hide';
 
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Term from '../components/Term';
-import { PrimaryButton, SecondaryButton } from '../components/Button';
-import { Steps, StepDetails, StepIcon, Step, StepNumber, StepLabel, StepBlock } from '../components/Step';
-import { shadeColor, getTextColour } from '../helpers/utils';
-import SpinningLemon from '../components/SpinningLemon';
-import datasets from '../assets/datasets.json';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Term from '@/components/Term';
+import { PrimaryButton, SecondaryButton } from '@/components/Button';
+import { Steps, StepDetails, StepIcon, Step, StepNumber, StepLabel, StepBlock } from '@/components/Step';
+import { shadeColor, getTextColour } from '@/helpers/utils';
+import SpinningLemon from '@/components/SpinningLemon';
+import datasets from '@/assets/datasets.json';
 
 const Buttons = styled.div`
 display: flex;
@@ -647,7 +647,7 @@ function PredictPage({ reactAppServerUrl }) {
                           <div>
                             {predictions.slice(1).map(prediction => {
                               return (
-                                <div id={prediction.label} style={{ marginBottom: '1em' }}>
+                                <div key={prediction.label} id={prediction.label} style={{ marginBottom: '1em' }}>
                                   <div>
                                     <Label title={prediction.label}><Term>{prediction.label}</Term></Label> Confidence: {(prediction.score * 100).toFixed(2)}%
                                     {' '}
@@ -666,7 +666,7 @@ function PredictPage({ reactAppServerUrl }) {
                                       <div>
                                         {prediction.terms.slice(0, showMoreExplanations[prediction.label] ? undefined : 10).map(term => {
                                           const explanations = generateExplanations(term.paths);
-                                          return <ul><li>{explanations}</li></ul>;
+                                          return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
                                         })}
                                       </div>
                                       {prediction.terms.length > 10 && (
@@ -699,7 +699,7 @@ function PredictPage({ reactAppServerUrl }) {
                         <div>
                             {predictions[0].terms.slice(0, showMoreExplanations[predictions[0].label] ? undefined : 10).map(term => {
                               const explanations = generateExplanations(term.paths);
-                              return <ul><li>{explanations}</li></ul>;
+                              return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
                             })}
                         </div>
                         {predictions[0].terms.length > 10 && (

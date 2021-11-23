@@ -1,9 +1,10 @@
 import styled from 'styled-components';
+import Image from 'next/image';
 
-import MEMADLogo from '../assets/images/memad-logo.png';
-import EURECOMLogo from '../assets/images/eurecom-logo.jpg';
-import SILKNOWLogo from '../assets/images/silknow-logo.jpg';
-import ASRAELLogo from '../assets/images/asrael-logo.png';
+import MEMADLogo from '@/assets/images/memad-logo.png';
+import EURECOMLogo from '@/assets/images/eurecom-logo.jpg';
+import SILKNOWLogo from '@/assets/images/silknow-logo.jpg';
+import ASRAELLogo from '@/assets/images/asrael-logo.png';
 
 const Container = styled.footer`
 background-color: #fafbfc;
@@ -30,16 +31,16 @@ export default function Footer() {
   return (
     <Container>
       <a href="https://www.eurecom.fr" target="_blank" rel="noopener noreferrer">
-        <img src={EURECOMLogo.src} title="EURECOM" alt="EURECOM" height="100" />
+        <Image src={EURECOMLogo.src} title="EURECOM" alt="EURECOM" height="100" />
       </a>
       <a href="https://memad.eu" target="_blank" rel="noopener noreferrer">
-        <img src={MEMADLogo.src} title="MEMAD" alt="MEMAD" height="100" />
+        <Image src={MEMADLogo.src} title="MEMAD" alt="MEMAD" height="100" />
       </a>
       <a href="https://silknow.eu" target="_blank" rel="noopener noreferrer">
-        <img src={SILKNOWLogo.src} title="SILKNOW" alt="SILKNOW" width="200" />
+        <Image src={SILKNOWLogo.src} title="SILKNOW" alt="SILKNOW" width="200" />
       </a>
       <a href="http://asrael.eurecom.fr" target="_blank" rel="noopener noreferrer">
-        <img src={ASRAELLogo.src} title="ASRAEL" alt="ASRAEL" height="100" />
+        <Image src={ASRAELLogo.src} title="ASRAEL" alt="ASRAEL" height="100" />
       </a>
     </Container>
   );

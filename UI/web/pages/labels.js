@@ -15,13 +15,13 @@ import { ArrowIosUpward as ArrowIosUpwardIcon } from '@styled-icons/evaicons-sol
 import { ArrowIosDownward as ArrowIosDownwardIcon } from '@styled-icons/evaicons-solid/ArrowIosDownward';
 import Toggle from 'react-toggle';
 
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Term from '../components/Term';
-import { PrimaryButton, SecondaryButton } from '../components/Button';
-import { Steps, StepDetails, StepIcon, Step, StepNumber, StepLabel, StepBlock } from '../components/Step';
-import { shadeColor, getTextColour } from '../helpers/utils';
-import SpinningLemon from '../components/SpinningLemon';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Term from '@/components/Term';
+import { PrimaryButton, SecondaryButton } from '@/components/Button';
+import { Steps, StepDetails, StepIcon, Step, StepNumber, StepLabel, StepBlock } from '@/components/Step';
+import { shadeColor, getTextColour } from '@/helpers/utils';
+import SpinningLemon from '@/components/SpinningLemon';
 
 const Buttons = styled.div`
 display: flex;
@@ -444,10 +444,10 @@ function LabelsPage({ reactAppServerUrl }) {
             <div style={{ marginBottom: '1.5em' }}>
               <h2>Differences</h2>
               <ChangesList>
-                <li><DiffAddedIcon width="1em" style={{ color: '#347d39' }} /> Added label "nasa"</li>
-                <li><DiffRemovedIcon width="1em" style={{ color: '#c93c37' }}  /> Removed label "science"</li>
-                <li><DiffModifiedIcon width="1em" style={{ color: '#636e7b' }}  /> Modified label "rocket" <ArrowIosUpwardIcon width="1em" /></li>
-                <li><DiffModifiedIcon width="1em" style={{ color: '#636e7b' }}  /> Modified label "gravity" <ArrowIosDownwardIcon width="1em" /></li>
+                <li><DiffAddedIcon width="1em" style={{ color: '#347d39' }} /> Added label &quot;nasa&quot;</li>
+                <li><DiffRemovedIcon width="1em" style={{ color: '#c93c37' }}  /> Removed label &quot;science&quot;</li>
+                <li><DiffModifiedIcon width="1em" style={{ color: '#636e7b' }}  /> Modified label &quot;rocket&quot; <ArrowIosUpwardIcon width="1em" /></li>
+                <li><DiffModifiedIcon width="1em" style={{ color: '#636e7b' }}  /> Modified label &quot;gravity&quot; <ArrowIosDownwardIcon width="1em" /></li>
               </ChangesList>
             </div>
 
@@ -509,7 +509,7 @@ function LabelsPage({ reactAppServerUrl }) {
                   <div>
                       {predictions[0].terms.slice(0, showMoreExplanations[predictions[0].label] ? undefined : 10).map(term => {
                         const explanations = generateExplanations(term.paths);
-                        return <ul><li>{explanations}</li></ul>;
+                        return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
                       })}
                   </div>
                   {predictions[0].terms.length > 10 && (
@@ -530,7 +530,7 @@ function LabelsPage({ reactAppServerUrl }) {
                   <div>
                     {predictions.slice(1).map(prediction => {
                       return (
-                        <div id={prediction.label} style={{ marginBottom: '1em' }}>
+                        <div key={prediction.label} id={prediction.label} style={{ marginBottom: '1em' }}>
                           <div>
                             <Label title={prediction.label}><Term>{prediction.label}</Term></Label> Confidence: {(prediction.score * 100).toFixed(2)}%
                             {' '}
@@ -542,7 +542,7 @@ function LabelsPage({ reactAppServerUrl }) {
                               <div>
                                 {prediction.terms.slice(0, showMoreExplanations[prediction.label] ? undefined : 10).map(term => {
                                   const explanations = generateExplanations(term.paths);
-                                  return <ul><li>{explanations}</li></ul>;
+                                  return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
                                 })}
                               </div>
                               {prediction.terms.length > 10 && (
