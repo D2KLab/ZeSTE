@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import Image from 'next/image';
 import AsyncSelect from 'react-select/async';
 import Graph from 'react-graph-vis';
 import { v4 as uuidv4 } from 'uuid';
@@ -500,7 +499,7 @@ function App({ reactAppServerUrl }) {
           <h1>
             <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
             {' '}
-            <Image src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
+            <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
             {' '}
             <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
           </h1>
@@ -724,16 +723,16 @@ function App({ reactAppServerUrl }) {
       </Container>
       <Footer>
         <a href="https://www.eurecom.fr" target="_blank" rel="noopener noreferrer">
-          <Image src={EURECOMLogo.src} alt="EURECOM" height="100" />
+          <img src={EURECOMLogo.src} alt="EURECOM" height="100" />
         </a>
         <a href="https://memad.eu" target="_blank" rel="noopener noreferrer">
-          <Image src={MEMADLogo.src} alt="MEMAD" height="100" />
+          <img src={MEMADLogo.src} alt="MEMAD" height="100" />
         </a>
         <a href="https://silknow.eu" target="_blank" rel="noopener noreferrer">
-          <Image src={SILKNOWLogo.src} alt="SILKNOW" width="200" />
+          <img src={SILKNOWLogo.src} alt="SILKNOW" width="200" />
         </a>
         <a href="http://asrael.eurecom.fr" target="_blank" rel="noopener noreferrer">
-          <Image src={ASRAELLogo.src} alt="ASRAEL" height="100" />
+          <img src={ASRAELLogo.src} alt="ASRAEL" height="100" />
         </a>
       </Footer>
     </>

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Github as GithubIcon } from '@styled-icons/evaicons-solid/Github';
 
@@ -56,14 +55,14 @@ export default function Header() {
       <DesktopTitle>
         <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
         {' '}
-        <Image src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
+        <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
         {' '}
         <small style={{ verticalAlign: 'middle' }}>Zero-Shot Topic Extraction</small>
       </DesktopTitle>
       <MobileTitle>
         <span style={{ verticalAlign: 'middle' }}>ZeSTE</span>
         {' '}
-        <Image src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
+        <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
       </MobileTitle>
       <Menu>
         <Link href="/predict"><a>Predict</a></Link>
