@@ -545,7 +545,7 @@ function LabelsPage({ reactAppServerUrl }) {
                     {addDiffs.filter(diff => !diffSearch.length || diff.label.search(new RegExp(diffSearch, 'i')) > -1).map(diff => {
                       const icon = diffIcons[diff.type];
                       return (
-                        <li><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
+                        <li key={diff.label}><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
                       );
                     })}
                   </ChangesList>
@@ -556,7 +556,7 @@ function LabelsPage({ reactAppServerUrl }) {
                     {removeDiffs.filter(diff => !diffSearch.length || diff.label.search(new RegExp(diffSearch, 'i')) > -1).map(diff => {
                       const icon = diffIcons[diff.type];
                       return (
-                        <li><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
+                        <li key={diff.label}><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
                       );
                     })}
                   </ChangesList>
@@ -567,7 +567,7 @@ function LabelsPage({ reactAppServerUrl }) {
                     {editedDiffs.filter(diff => !diffSearch.length || diff.label.search(new RegExp(diffSearch, 'i')) > -1).map(diff => {
                       const icon = diffIcons[diff.type];
                       return (
-                        <li><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
+                        <li key={diff.label}><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
                       );
                     })}
                   </ChangesList>
