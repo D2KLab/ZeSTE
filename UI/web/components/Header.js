@@ -67,9 +67,9 @@ export default function Header() {
       <Menu>
         <Link href="/predict"><a>Predict</a></Link>
         <Link href="/labels"><a>Labels</a></Link>
-        <Link href="https://github.com/D2KLab/ZeSTE" target="_blank" rel="noopener noreferrer">
-          <a><GithubIcon height="1rem" /> GitHub</a>
-        </Link>
+        <a href="https://github.com/D2KLab/ZeSTE" target="_blank" rel="noopener noreferrer">
+          <GithubIcon height="1rem" /> GitHub
+        </a>
       </Menu>
     </Container>
   );
