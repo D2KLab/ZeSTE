@@ -57,22 +57,6 @@ min-height: 38px;
 padding: 8px;
 `;
 
-const Results = styled.div`
-box-shadow: 0 0 10px 0px rgb(0 0 0 / 20%);
-position: fixed;
-bottom: 0;
-background: white;
-width: 100%;
-bottom: ${props => props.visible ? 0 : '-100%'};
-height: calc(100% - 8em);
-transition: bottom 0.5s ease-in-out;
-
-pre {
-  overflow: auto;
-  max-width: 250px;
-}
-`;
-
 const CloseButton = styled.div`
 margin: 1em;
 font-weight: bold;
@@ -202,18 +186,16 @@ const graphOptions = {
   }
 };
 
-function LabelsPage({ reactAppServerUrl }) {
+function LabelsPage() {
   const [ isLoading, setIsLoading ] = useState(false);
-  const [ predictions, setPredictions ] = useState([]);
   const [ differences, setDifferences ] = useState([]);
   const [ diffSearch, setDiffSearch ] = useState('');
-  const [ inputText, setInputText ] = useState('Prompt default value...');
+  const [ inputText, setInputText ] = useState('');
   const [ userLabel, setUserLabel ] = useState(null);
   const [ error, setError ] = useState(null);
   const [ graphKey, setGraphKey ] = useState(uuidv4());
   const [ visibleExplanations, setVisibleExplanations ] = useState({});
   const [ showMoreExplanations, setShowMoreExplanations ] = useState({});
-  const [ isResultsVisible, setResultsVisible ] = useState(false);
   const [ language, setLanguage ] = useState('en');
   const [ currentStep, setCurrentStep ] = useState(1);
   const graphRef = useRef(null);
@@ -252,11 +234,9 @@ function LabelsPage({ reactAppServerUrl }) {
   };
 
   const predict = async () => {
-    setPredictions([]);
     setError(null);
     setVisibleExplanations({});
     setShowMoreExplanations({});
-    // setResultsVisible(true);
     setCurrentStep(3);
 
     const params = {
@@ -291,9 +271,6 @@ function LabelsPage({ reactAppServerUrl }) {
       if (typeof data.error !== 'undefined') {
         setError(data.error);
       } else {
-        // setInputText(data.text);
-        setPredictions(data.results);
-
         const bertCache = {};
         data.results.bert_scores.forEach(([ bertLabel, bertScore ]) => {
           bertCache[bertLabel] = bertScore;
@@ -498,7 +475,7 @@ function LabelsPage({ reactAppServerUrl }) {
               <p><em>Note: only English is currently supported.</em></p>
 
               <div style={{ marginBottom: '2em' }}>
-                <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
+                <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} placeholder={`Type a prompt${userLabel ? ` about "${userLabel}"` : ''} here...`} />
               </div>
             </div>
 
@@ -517,6 +494,15 @@ function LabelsPage({ reactAppServerUrl }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
                 <div><SpinningLemon /></div>
                 <p><em>Squeezing some lemons...</em></p>
+              </div>
+            )}
+
+            {error !== null && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
+                <h2>Uh-oh</h2>
+                <p>Something wrong happened 😕</p>
+                <pre>{error}</pre>
+                <SecondaryButton onClick={predict}>Retry</SecondaryButton>
               </div>
             )}
 
@@ -567,7 +553,7 @@ function LabelsPage({ reactAppServerUrl }) {
                     {editedDiffs.filter(diff => !diffSearch.length || diff.label.search(new RegExp(diffSearch, 'i')) > -1).map(diff => {
                       const icon = diffIcons[diff.type];
                       return (
-                        <li key={diff.label}><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.score).toFixed(2)})</li>
+                        <li key={diff.label}><icon.element width="1em" style={{ color: icon.color }} /> {icon.label} &quot;{diff.label}&quot; ({parseFloat(diff.prevScore).toFixed(2)} &rarr; {parseFloat(diff.score).toFixed(2)})</li>
                       );
                     })}
                   </ChangesList>
@@ -580,111 +566,6 @@ function LabelsPage({ reactAppServerUrl }) {
             </Buttons>
           </StepBlock>
         </Form>
-
-        <Results visible={isResultsVisible}>
-          <CloseButton onClick={() => setResultsVisible(false)}><CloseIcon width="2em" /> Close</CloseButton>
-          {isLoading && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
-              <div><SpinningLemon /></div>
-              <p><em>Squeezing some lemons...</em></p>
-            </div>
-          )}
-          {error !== null && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', height: '100%', margin: '1em' }}>
-              <h2>Uh-oh</h2>
-              <p>Something wrong happened 😕</p>
-              <pre>{error}</pre>
-              <SecondaryButton onClick={predict}>Retry</SecondaryButton>
-            </div>
-          )}
-          {Array.isArray(predictions) && predictions.length > 0 && (
-            <>
-              <h2>The predicted labels are:</h2>
-
-              <div style={{ marginBottom: '1em' }}>
-                <MainLabel>
-                  <Term>{predictions[0].label}</Term>
-                  <Confidence>Confidence: {(predictions[0].score * 100).toFixed(2)}%</Confidence>
-                </MainLabel>
-              </div>
-
-              <div style={{ display: 'flex', height: '300px', marginBottom: '1em' }}>
-                {/* <Graph key={uuidv4()} graph={graph} options={graphOptions} events={events} ref={graphRef} /> */}
-              </div>
-
-              <div style={{ marginBottom: '1em' }}>
-                {Array.isArray(predictions[0].highlights) && predictions[0].highlights.map(highlight => {
-                  const backgroundColor = shadeColor('#4bff00', -highlight[1] * 100);
-                  const textColor = getTextColour(backgroundColor);
-                  return <><HighlightTerm style={{ backgroundColor, color: textColor }}>{highlight[0]}</HighlightTerm>{' '}</>;
-                })}
-              </div>
-
-              <div style={{ marginBottom: '1em' }}>
-                <h2 style={{ display: 'inline' }}>Explanation:</h2>
-                {' '}
-                {visibleExplanations[predictions[0].label] && (
-                  <small><a href={`#${predictions[0].label}`} onClick={() => toggleExplanation(predictions[0].label)}>(hide)</a></small>
-                )}
-              </div>
-              {visibleExplanations[predictions[0].label] ? (
-                <div>
-                  <div>The document contains the terms:</div>
-                  <div>
-                      {predictions[0].terms.slice(0, showMoreExplanations[predictions[0].label] ? undefined : 10).map(term => {
-                        const explanations = generateExplanations(term.paths);
-                        return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
-                      })}
-                  </div>
-                  {predictions[0].terms.length > 10 && (
-                    <div style={{ marginLeft: '2.5em' }}>
-                      <PrimaryButton onClick={() => { toggleMoreExplanations(predictions[0].label); }}>show {showMoreExplanations[predictions[0].label] ? 'less' : 'more'}</PrimaryButton>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <a href={`#${predictions[0].label}`} onClick={() => toggleExplanation(predictions[0].label)}>(show explanations for the main topic)</a>
-              )}
-
-              {predictions.length > 1 && (
-                <div>
-                  <div>
-                    <h2>The other possible topics with their explanation for this document are:</h2>
-                  </div>
-                  <div>
-                    {predictions.slice(1).map(prediction => {
-                      return (
-                        <div key={prediction.label} id={prediction.label} style={{ marginBottom: '1em' }}>
-                          <div>
-                            <Label title={prediction.label}><Term>{prediction.label}</Term></Label> Confidence: {(prediction.score * 100).toFixed(2)}%
-                            {' '}
-                            <a href={`#${prediction.label}`} onClick={() => toggleExplanation(prediction.label)}>({visibleExplanations[prediction.label] ? 'hide explanation' : 'see explanation'})</a>
-                          </div>
-
-                          {visibleExplanations[prediction.label] && (
-                            <>
-                              <div>
-                                {prediction.terms.slice(0, showMoreExplanations[prediction.label] ? undefined : 10).map(term => {
-                                  const explanations = generateExplanations(term.paths);
-                                  return <ul key={term.paths.join('|')}><li>{explanations}</li></ul>;
-                                })}
-                              </div>
-                              {prediction.terms.length > 10 && (
-                                <div style={{ marginLeft: '2.5em' }}>
-                                  <PrimaryButton onClick={() => { toggleMoreExplanations(prediction.label); }}>show {showMoreExplanations[prediction.label] ? 'less' : 'more'}</PrimaryButton>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </Results>
       </Main>
       <Footer />
     </>
