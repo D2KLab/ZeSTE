@@ -4,9 +4,9 @@ module.exports = {
     defaultLocale: 'en'
   },
   async rewrites() {
-      return [{
-        source: '/',
-        destination: '/predict',
-      }, ]
+    return [{
+      source: '/',
+      destination: '/labels',
+    }]
   },
 }
