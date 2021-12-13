@@ -37,12 +37,13 @@ This repo is organized as follows:
 
 ## Reproducing Results
 ### 1. Downloads
-The two following files need to be downloaded to bypass the use of ConceptNet's web API: the dump of ConceptNet triplets, and the ConceptNet Numberbatch pre-computed word embeddings. You can download them from [ConceptNet's](https://github.com/commonsense/conceptnet5/wiki/Downloads) and [Numberbatch's](https://github.com/commonsense/conceptnet-numberbatch) repos, respectively.
+The two following files need to be downloaded to bypass the use of ConceptNet's web API: the dump of ConceptNet triples, and the ConceptNet Numberbatch pre-computed word embeddings (english). You can also download them from [ConceptNet's](https://github.com/commonsense/conceptnet5/wiki/Downloads) and [Numberbatch's](https://github.com/commonsense/conceptnet-numberbatch) repos, respectively.
 ```
-# wget https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
-# wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-19.08.txt.gz
-# gzip -d conceptnet-assertions-5.7.0.csv.gz
-# gzip -d numberbatch-19.08.txt.gz
+wget https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
+wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-en-19.08.txt.gz
+gzip -d conceptnet-assertions-5.7.0.csv.gz
+gzip -d numberbatch-19.08.txt.gz
+rm *.gz
 ```
 
 ### 2. generate_cache.py
