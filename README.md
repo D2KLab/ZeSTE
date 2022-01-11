@@ -36,6 +36,9 @@ This repo is organized as follows:
 * `label_mappings`: contains the tab-separated mappings for the studied datasets.
 
 ## Reproducing Results
+
+> ⚠️ If you don't want to use a different version of ConceptNet or Numberbatch (e.g. for a newer version or a different language), you can skip steps 1 and 2 and download the outputs of this script directly from Zenodo: https://zenodo.org/record/5838328#.Yd225JHMJhE
+
 ### 1. Downloads
 The two following files need to be downloaded to bypass the use of ConceptNet's web API: the dump of ConceptNet triples, and the ConceptNet Numberbatch pre-computed word embeddings (english). You can also download them from [ConceptNet's](https://github.com/commonsense/conceptnet5/wiki/Downloads) and [Numberbatch's](https://github.com/commonsense/conceptnet-numberbatch) repos, respectively.
 ```
@@ -67,12 +70,16 @@ optional arguments:
 ### 3. zeste.py
 This script uses the precomputed 1-hop label neighborhoods to recursively generate label neighborhoods of any given depth (`-d`). It takes also as parameters the path to the dataset CSV file (which should have two columns: `text` and `label`). The rest of the arguments are for model experimentation. 
 
-⚠️ If using a personalized dataset, make sure to create a proper `labels_mapping` file (multiword labels are comma-separated).
-⚠️ The script will save the neighborhoods construction (using the parameters given) to be easily prefetched for future use/itartions. If you want to use a different configuration, specify a different path (using the `-pp` parameter) or empty the contents of the default `prefetch_path`
+> ⚠️ If using a personalized dataset, make sure to create a proper `labels_mapping` file (multiword labels are comma-separated).
+
+> ⚠️ Make sure to create the paths for caching and prefetching before running the script. The script will save the neighborhoods construction (using the parameters given) to be easily prefetched for future use/itartions. If you want to use a different configuration, specify a different path (using the `-pp` parameter) or empty the contents of the default `prefetch_path`
 
 ```
-usage: zeste.py [-h] [-cp CACHE_PATH] [-pp PREFETCH_PATH] [-nb NUMBERBATCH_PATH] [-dp DATASET_PATH] [-lm LABELS_MAPPING] [-rp RESULTS_PATH]
-                [-d DEPTH] [-f FILTER] [-s {simple,compound,depth,harmonized}] [-ar ALLOWED_RELS]
+usage: zeste.py [-h] [-cp CACHE_PATH] [-pp PREFETCH_PATH]
+                [-nb NUMBERBATCH_PATH] [-dp DATASET_PATH] [-lm LABELS_MAPPING]
+                [-rp RESULTS_PATH] [-d DEPTH] [-f FILTER]
+                [-s {simple,compound,depth,harmonized}] [-n USE_NGRAMS]
+                [-ar ALLOWED_RELS]
 
 Zero-Shot Topic Extraction
 
@@ -81,22 +88,27 @@ optional arguments:
   -cp CACHE_PATH, --cache_path CACHE_PATH
                         Path to where the 1-hop word neighborhoods are cached
   -pp PREFETCH_PATH, --prefetch_path PREFETCH_PATH
-                        Path to where the precomputed n-hop neighborhoods are cached
+                        Path to where the precomputed n-hop neighborhoods are
+                        cached
   -nb NUMBERBATCH_PATH, --numberbatch_path NUMBERBATCH_PATH
                         Path to the pickled Numberbatch
   -dp DATASET_PATH, --dataset_path DATASET_PATH
                         Path to the dataset to process
   -lm LABELS_MAPPING, --labels_mapping LABELS_MAPPING
-                        Path to the mapping between the dataset labels and ZeSTE labels (multiword labels are comma-separated)
+                        Path to the mapping between the dataset labels and
+                        ZeSTE labels (multiword labels are comma-separated)
   -rp RESULTS_PATH, --results_path RESULTS_PATH
                         Path to the directory where to store the results
   -d DEPTH, --depth DEPTH
                         How many hops to generate the neighborhoods
   -f FILTER, --filter FILTER
-                        Filtering method: top[N], top[P]%, thresh[T], all
+                        Filtering method: `top[N]`, `top[P]%`, `thresh[T]`,
+                        `all`
   -s {simple,compound,depth,harmonized}, --similarity {simple,compound,depth,harmonized}
+  -n USE_NGRAMS, --use_ngrams USE_NGRAMS
+                        Whether or not to use n-grams (vs only simple wprds)
   -ar ALLOWED_RELS, --allowed_rels ALLOWED_RELS
-                        Which relationships to use (comma-separated or all)
+                        Which relationships to use (comma-separated or `all`)
 ```
 
 ### Cite this work
