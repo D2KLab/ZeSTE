@@ -1,4 +1,4 @@
-<div align="center"><img src="images/zeste_logo.png" width="200"></div>
+<div align="center"><img src="UI/images/zeste_logo.png" width="200"></div>
 
 # Zero-Shot Topic Extraction with Common-Sense Knowledge Graph
 
@@ -10,7 +10,7 @@ A user-friendly demo is available at: http://zeste.tools.eurecom.fr/
 Based on ConceptNet's common sense knowledge graph and embeddings, ZeSTE generates explainable predictions for a document topical category (e.g. _politics_, _sports_, _video_games_ ..) without reliance on training data. 
 The following is a high-level illustration of the approach:
 
-<div align="center"><img src="images/zeste_pipeline.png"></div>
+<div align="center"><img src="UI/images/zeste_pipeline.png"></div>
 
 
 ## API
@@ -66,6 +66,9 @@ optional arguments:
 
 ### 3. zeste.py
 This script uses the precomputed 1-hop label neighborhoods to recursively generate label neighborhoods of any given depth (`-d`). It takes also as parameters the path to the dataset CSV file (which should have two columns: `text` and `label`). The rest of the arguments are for model experimentation. 
+
+⚠️ If using a personalized dataset, make sure to create a proper `labels_mapping` file (multiword labels are comma-separated).
+⚠️ The script will save the neighborhoods construction (using the parameters given) to be easily prefetched for future use/itartions. If you want to use a different configuration, specify a different path (using the `-pp` parameter) or empty the contents of the default `prefetch_path`
 
 ```
 usage: zeste.py [-h] [-cp CACHE_PATH] [-pp PREFETCH_PATH] [-nb NUMBERBATCH_PATH] [-dp DATASET_PATH] [-lm LABELS_MAPPING] [-rp RESULTS_PATH]

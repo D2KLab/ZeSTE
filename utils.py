@@ -15,7 +15,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path):
+def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, save_to_prefetch = True):
     # In case the requested label does not appear in the cache
     
     pickle_path = os.path.join(cache_path, label+'.pickle')
@@ -23,10 +23,14 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path):
         return {}
     
     # if already computed
-    prefetch_path = os.path.join(prefetch_path, str(depth) + '/' + label+'.pickle')
-    if depth > 1 and os.path.exists(prefetch_path):
-        # print('Prefetching the pickle for label', label, '..')
-        return pickle.load(open(prefetch_path, 'rb'))
+    if depth > 1:
+        prefetch_folder = os.path.join(prefetch_path, str(depth))
+        if not os.path.exists(prefetch_folder):
+            print('Creating folder:', prefetch_folder)
+            os.mkdir(prefetch_folder)
+        prefetch_pickle_path = os.path.join(prefetch_folder, label+'.pickle')
+        if os.path.exists(prefetch_pickle_path):
+            return pickle.load(open(prefetch_pickle_path, 'rb'))
 
     # Get immediate label neighborhood
     similarities = ['simple', 'compound', 'depth', 'harmonized']
@@ -48,7 +52,7 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path):
                 continue
             if neighborhood[current_node]['sim']['simple'] <= 0:
                 continue
-            cnn = get_word_neighborhood(current_node, depth, numberbatch, cache_path, prefetch_path)
+            cnn = get_word_neighborhood(current_node, 1, numberbatch, cache_path, prefetch_path)
             for word in cnn:
                 if word not in neighborhood:
                     neighborhood[word] = {'from':[], 'rels': [], 'sim':{}}
@@ -81,11 +85,10 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path):
         to_visit_next = next_hop
         
     # save 
-    if depth > 1:
-        pickle.dump(neighborhood, open(prefetch_path, 'wb'))
+    if depth > 1 and save_to_prefetch:
+        pickle.dump(neighborhood, open(prefetch_pickle_path, 'wb'))
 
     return neighborhood
-
 
 def get_label_neighborhood(label_words, depth, numberbatch, cache_path, prefetch_path):
 
@@ -179,7 +182,7 @@ def score(tokens, label_neighborhood, sim, ngrams, normalize):
     return round(score, 6)
     
     
-def predict_dataset(docs, sorted_labels, labels_neighborhoods, sim, ngrams, normalize):
+def predict_dataset(docs, sorted_labels, labels_neighborhoods, sim, ngrams, normalize='max_score'):
     scores = np.zeros((len(docs), len(sorted_labels)))
     for i, doc in enumerate(docs):
         for j, label in enumerate(sorted_labels):

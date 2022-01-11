@@ -29,18 +29,24 @@ args = parser.parse_args()
 # wc -l conceptnet-assertions-5.7.0.csv
 # wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-19.08.txt.gz
 
+
+if not os.path.exists(args.zeste_cache_path):
+    print('Caching folder (', args.zeste_cache_path,') not found.. creating it now.')
+    os.mkdir(args.zeste_cache_path)
+
+
 data = []
 print('Reading ConceptNet assertions..')
 with open(args.conceptnet_assertions_path, 'r') as f: 
     for line in f:
         triplet, rel, sub, obj, info = line.split('\t')
         data.append((sub, rel, obj))
-        if len(data) == 10000: break
+        if len(data) == 30000: break
 
 cn = pd.DataFrame(data=data, columns=['subject', 'relation', 'object'])
 # cn.to_csv('conceptnet_5.7.0.csv')
 
-print('Loading ConceptNet assertios..')
+print('Loading ConceptNet assertions..')
 data_en = []
 for i, triplet in tqdm(cn.iterrows(), total=len(cn)):
     lang = triplet.subject.split('/')[2]
@@ -54,7 +60,9 @@ for i, triplet in tqdm(cn.iterrows(), total=len(cn)):
 
 print('Loading Numberbatch embeddings (may take some time)..')
 numberbatch = KeyedVectors.load_word2vec_format(args.conceptnet_numberbatch_path)
-pickle.dump(numberbatch, open(os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1]+'.pickle'), 'wb'))
+
+pickle.dump(numberbatch, open(os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1].replace('txt', '') +'.pickle'), 'wb'))
+print('Saving the pickled Numberbatch into', os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1]+'.pickle'))
 
 reverse_rels = { 'antonym': 'antonym',
                  'atlocation': 'locatedat',
@@ -113,13 +121,11 @@ for s, r, o in tqdm(data_en):
     data_rev.add((s, r, o))
     data_rev.add((o, reverse_rels[r], s))
 
-cn_en = pd.DataFrame(data=sorted(data_rev, key=lambda x: x[0]), columns=['subject', 'relation', 'object'])
+cn_en_all = pd.DataFrame(data=sorted(data_rev, key=lambda x: x[0]), columns=['subject', 'relation', 'object'])
 current = '0'
 neighbors = {current: {'rels':['sameas'], 'sim': 1., 'from': [current]}}
 
-print(cn_en.head())
-
-for i, e in tqdm(cn_en.iterrows(), total=len(cn_en)):
+for i, e in tqdm(cn_en_all.iterrows(), total=len(cn_en_all)):
     s, r, o = e['subject'], e['relation'], e['object']
     assert(type(s) == str and type(s) == str)
     if s != current:
