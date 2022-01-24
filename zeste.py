@@ -10,18 +10,15 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='Zero-Shot Topic Extraction')
 
-parser.add_argument("-cp", "--cache_path", type=str, help="Path to where the 1-hop word neighborhoods are cached", 
-                    default='zeste_cache/') 
-parser.add_argument('-pp', '--prefetch_path', type=str, help="Path to where the precomputed n-hop neighborhoods are cached", 
-                    default='zeste_prefetch/') 
+parser.add_argument("-cp", "--cache_path", type=str, help="Path to where the 1-hop word neighborhoods are cached") 
+parser.add_argument('-pp', '--prefetch_path', type=str, help="Path to where the precomputed n-hop neighborhoods are cached") 
 parser.add_argument('-nb', '--numberbatch_path', type=str, help="Path to the pickled Numberbatch", 
                     default='numberbatch-en-19.08.txt.pickle') 
 parser.add_argument('-dp', '--dataset_path', type=str, help="Path to the dataset to process", 
                     default='data/bbc_dataset.csv')  
 parser.add_argument('-lm', '--labels_mapping', type=str, help="Path to the mapping between the dataset labels and ZeSTE labels (multiword labels are comma-separated)", 
                     default='labels_mapping/bbc_labels_mapping.txt') 
-parser.add_argument('-rp', '--results_path', type=str, help="Path to the directory where to store the results", 
-                    default='results/')
+parser.add_argument('-rp', '--results_path', type=str, help="Path to the directory where to store the results")
 parser.add_argument('-d', '--depth', type=int, help="How many hops to generate the neighborhoods", default=2)
 parser.add_argument('-f', '--filter', type=str, help="Filtering method: 'top[N]', 'top[P]%'', 'thresh[T]', 'all'", default='all') 
 parser.add_argument('-s', '--similarity', type=str, choices=['simple', 'compound', 'depth', 'harmonized'], default='simple') 
