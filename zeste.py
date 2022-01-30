@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Zero-Shot Topic Extraction')
 parser.add_argument("-cp", "--cache_path", type=str, help="Path to where the 1-hop word neighborhoods are cached") 
 parser.add_argument('-pp', '--prefetch_path', type=str, help="Path to where the precomputed n-hop neighborhoods are cached") 
 parser.add_argument('-nb', '--numberbatch_path', type=str, help="Path to the pickled Numberbatch", 
-                    default='numberbatch-en-19.08.txt.pickle') 
+                    default='numberbatch-en-19.08.pickle') 
 parser.add_argument('-dp', '--dataset_path', type=str, help="Path to the dataset to process", 
                     default='data/bbc_dataset.csv')  
 parser.add_argument('-lm', '--labels_mapping', type=str, help="Path to the mapping between the dataset labels and ZeSTE labels (multiword labels are comma-separated)", 
@@ -33,6 +33,7 @@ args = parser.parse_args()
 #   Loading & Preprocessing Data
 ###
 
+print('Laading numberbatch..')
 numberbatch = pickle.load(open(args.numberbatch_path, 'rb'))
 
 df_dataset = pd.read_csv(args.dataset_path)
@@ -41,12 +42,13 @@ gt_labels = df_dataset.label.tolist()
 unique_labels = sorted(set(gt_labels))
 
 
-print('Preprocessing all documents ..')
+print('Preprocessing all documents..')
 with mp.Pool(processes=mp.cpu_count()) as pool:
     corpus_preprocessed = pool.map(preprocess, raw_corpus)
     
 ngram_counter = TfidfVectorizer(ngram_range=(1,3), min_df=2)
 ngram_counter.fit([' '.join(d) for d in corpus_preprocessed])
+print('ngrams count:', len(ngram_counter.vocabulary_.keys()))
 ngrams = [w for w in ngram_counter.vocabulary_.keys() if ' ' in w and w.replace(' ', '_') in numberbatch]
 
 labels_mapping = dict(l.strip().split('\t') for l in open(args.labels_mapping))
@@ -57,6 +59,7 @@ sorted_labels = sorted(set(labels_mapping.values()))
 ###
 #   Generate and filter Label Neighborhoods
 ###
+print('Computing neighborhoods..')
 labels_neighborhoods = {}
 for label in tqdm(sorted_labels): 
     labels_neighborhoods[label] = get_label_neighborhood(label, args.depth, numberbatch, args.cache_path, args.prefetch_path)
@@ -77,6 +80,7 @@ report_file_path = os.path.join(args.results_path, filename+'-report.txt')
 
 np.save(open(predictions_file_path, 'wb'), predicted_labels)
 np.save(open(probs_file_path, 'wb'), predicted_probs)
+
 print('Predictions for the dataset saved at', args.results_path)
 
 acc, pre, rec, f1, cm, cr = evaluate(predicted_labels, gt_labels, labels_mapping)

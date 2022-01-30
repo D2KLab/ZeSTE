@@ -41,7 +41,7 @@ with open(args.conceptnet_assertions_path, 'r') as f:
     for line in f:
         triplet, rel, sub, obj, info = line.split('\t')
         data.append((sub, rel, obj))
-        if len(data) == 30000: break
+        # if len(data) == 30000: break
 
 cn = pd.DataFrame(data=data, columns=['subject', 'relation', 'object'])
 # cn.to_csv('conceptnet_5.7.0.csv')

@@ -37,7 +37,7 @@ This repo is organized as follows:
 
 ## Reproducing Results
 
-> ⚠️ If you don't want to use a different version of ConceptNet or Numberbatch (e.g. for a newer version or a different language), you can skip steps 1 and 2 and download the outputs of this script directly from Zenodo: https://zenodo.org/record/5898063#.Ye62rpHMJhE
+> ⚠️ If you don't want to use a different version of ConceptNet or Numberbatch (e.g. for a newer version or a different language), you can skip steps 1 and 2 and download the outputs of this script directly from Zenodo: https://zenodo.org/record/5920669#.Yfb78pHMJhE (unzipping may take a while)
 
 ### 1. Downloads
 The two following files need to be downloaded to bypass the use of ConceptNet's web API: the dump of ConceptNet triples, and the ConceptNet Numberbatch pre-computed word embeddings (english). You can also download them from [ConceptNet's](https://github.com/commonsense/conceptnet5/wiki/Downloads) and [Numberbatch's](https://github.com/commonsense/conceptnet-numberbatch) repos, respectively.
