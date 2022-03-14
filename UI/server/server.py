@@ -58,9 +58,12 @@ class autocomplete_route(Resource):
         return jsonify(suggestions)
 
 resource_fields = api.model('Resource', {
-    'uri': fields.String,
-    'text': fields.String,
-    'labels': fields.String
+    'uri': fields.String(description='The URL to a page to extract text and return predictions for (if specified, `text` will be ignored)'),
+    'text': fields.String(description='The text to extract (if `uri` is specified, this will be ignored)'),
+    'language': fields.String(description='language of the text to extract (en, fr)', required=True),
+    'labels': fields.String(description='semicolon-separated list of labels', required=True),
+    'explain': fields.Boolean(description='return explanations for each prediction', default=False),
+    'highlights': fields.Boolean(description='return highlights for each prediction', default=True)
 })
 
 @ns.route('/predict', methods=['POST'])
