@@ -72,7 +72,7 @@ class predict_route(Resource):
         print(content)
 
         language = content['language']
-        
+
         if 'uri' in content:
             downloaded = trafilatura.fetch_url(content['uri'])
             if downloaded is None:

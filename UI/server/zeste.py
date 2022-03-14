@@ -70,7 +70,7 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en'):
                     additions.append(ww)
         to_visit_next = additions
         depth -= 1
-        
+
     return neighborhood
 
 
@@ -79,12 +79,12 @@ def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'sy
     words = words.split('-')
     if len(words) > 50:
         raise Exception('Too many topic labels')
-    
+
     ns = []
     for word in words:
         ns.append(get_word_neighborhood(word, depth=depth, language=language))
     neighborhood = ns[0].copy()
-    
+
     for w, nn in zip(words[1:], ns[1:]):
         for ww in nn:
             if ww in neighborhood:
@@ -102,7 +102,7 @@ def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'sy
 def generate_label_neighborhoods(labels_list, language):
     label_neighborhoods = {}
     for label in labels_list:
-        path = '/data/zeste_cache/demo_cache/'+label+ ('.pickle' if  language == 'en' else '_fr.pickle')    
+        path = '/data/zeste_cache/demo_cache/'+label+ ('.pickle' if  language == 'en' else '_fr.pickle')
         if os.path.exists(path):
             logging.info('Loading cached neighborhood for the label "'+ label +'"')
             label_neighborhoods[label] = pickle.load(open(path, 'rb'))
@@ -173,12 +173,12 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]]], 'score': float(score)})
             elif len(path) == 5:
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': float(score)})
-                
+
         ln = labels_neighborhoods[label]
         d['highlights'] = [[t,str(-1 if t not in ln else ln[t]['sim'])] for t in tokens]
-        
+
         response.append(d)
-        
+
     total_scores = sum(label['score'] for label in response)
     for label in response:
         label['score'] /= total_scores if total_scores > 0 else 1.
@@ -188,7 +188,7 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
 
 
 def predict(doc, labels_list, language):
-    global numberbatch 
+    global numberbatch
     numberbatch = numberbatch_fr if language == 'fr' else numberbatch_en
     lns = generate_label_neighborhoods(labels_list, language)
     res = {}
