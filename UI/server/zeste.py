@@ -132,7 +132,7 @@ def find_best_path(word, label, label_neighborhood, language):
                 return  None
 
 
-def get_document_score_and_explain(doc, labels, label_neighborhood, language):
+def get_document_score_and_explain(doc, labels, label_neighborhood, language, show_explanations):
     tokens = preprocess(doc, language)
     related_words = []
     score = 0
@@ -149,13 +149,14 @@ def get_document_score_and_explain(doc, labels, label_neighborhood, language):
         labels = labels.split('-')
 
     explanation = []
-        
-    for label in labels:
-        for word, similarity in related_words:
-            best_path = find_best_path(word, label, label_neighborhood, language)
-            if best_path:
-                explanation.append((best_path, similarity))
-        explanation = list(set(explanation))
+
+    if show_explanations:
+        for label in labels:
+            for word, similarity in related_words:
+                best_path = find_best_path(word, label, label_neighborhood, language)
+                if best_path:
+                    explanation.append((best_path, similarity))
+            explanation = list(set(explanation))
 
     return score, sorted(explanation, key=lambda t: -t[1])
 
@@ -187,13 +188,13 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
     return response
 
 
-def predict(doc, labels_list, language):
+def predict(doc, labels_list, language, show_explanations=False):
     global numberbatch
     numberbatch = numberbatch_fr if language == 'fr' else numberbatch_en
     lns = generate_label_neighborhoods(labels_list, language)
     res = {}
     for label in lns:
-        res[label] = get_document_score_and_explain(doc, label, lns[label], language)
+        res[label] = get_document_score_and_explain(doc, label, lns[label], language, show_explanations)
 
     explanation_json = generate_json(res, doc, lns, language)
     return explanation_json

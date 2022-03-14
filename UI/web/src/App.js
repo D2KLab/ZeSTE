@@ -357,6 +357,7 @@ function App() {
     const params = {
       labels: [...userLabels, ...datasetLabels].join(';'),
       language,
+      explain: true,
     };
     if (inputURL.length > 0) {
       params.uri = inputURL;
