@@ -23,5 +23,5 @@
 
 1. Run the docker image:
     ```sh
-    docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name mle-zeste zeste_server
+    docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name mle-zeste d2klab/zeste_server
     ```
