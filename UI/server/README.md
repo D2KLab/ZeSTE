@@ -12,7 +12,11 @@
 
 ## How to run
 
-1. Download [zeste_cache.tar.gz]() and extract it into `ZeSTE/UI/server/zeste_cache`
+1. Download [zeste_cache.tar.gz]() and extract its content into `ZeSTE/UI/server/zeste_cache` with:
+```sh
+cd ZeSTE/UI/server
+tar -zxvf zeste_cache_tar.gz zeste_cache/
+```
 1. Run the docker image:
 ```sh
 docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name mle-zeste zeste_server
