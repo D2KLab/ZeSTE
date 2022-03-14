@@ -161,7 +161,7 @@ def get_document_score_and_explain(doc, labels, label_neighborhood, language, sh
     return score, sorted(explanation, key=lambda t: -t[1])
 
 
-def generate_json(explanation, doc, labels_neighborhoods, language):
+def generate_json(explanation, doc, labels_neighborhoods, language, show_highlights=True):
     response = []
     tokens = preprocess(doc, language)
     for label in explanation:
@@ -175,8 +175,9 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
             elif len(path) == 5:
                 d['terms'].append({'paths':[[path[0], relations[path[1]], path[2]], [path[2], relations[path[3]], path[4]]], 'score': float(score)})
 
-        ln = labels_neighborhoods[label]
-        d['highlights'] = [[t,str(-1 if t not in ln else ln[t]['sim'])] for t in tokens]
+        if show_highlights:
+            ln = labels_neighborhoods[label]
+            d['highlights'] = [[t,str(-1 if t not in ln else ln[t]['sim'])] for t in tokens]
 
         response.append(d)
 
@@ -188,7 +189,7 @@ def generate_json(explanation, doc, labels_neighborhoods, language):
     return response
 
 
-def predict(doc, labels_list, language, show_explanations=False):
+def predict(doc, labels_list, language, show_explanations=False, show_highlights=True):
     global numberbatch
     numberbatch = numberbatch_fr if language == 'fr' else numberbatch_en
     lns = generate_label_neighborhoods(labels_list, language)
@@ -196,5 +197,5 @@ def predict(doc, labels_list, language, show_explanations=False):
     for label in lns:
         res[label] = get_document_score_and_explain(doc, label, lns[label], language, show_explanations)
 
-    explanation_json = generate_json(res, doc, lns, language)
+    explanation_json = generate_json(res, doc, lns, language, show_highlights)
     return explanation_json

@@ -73,6 +73,7 @@ class predict_route(Resource):
 
         language = content['language']
         show_explanations = 'explain' in content and content['explain']
+        show_highlights = 'highlights' in content and content['highlights']
 
         if 'uri' in content:
             downloaded = trafilatura.fetch_url(content['uri'])
@@ -86,7 +87,7 @@ class predict_route(Resource):
         labels = content['labels'].split(';')
 
         # Process text with labels
-        response = predict(text, labels, language, show_explanations)
+        response = predict(text, labels, language, show_explanations, show_highlights)
 
         ### response looks like this ###
         ### (both the labels and the paths are sorted by score ###
