@@ -15,7 +15,7 @@
 1. Download [zeste_cache.tar.gz]() and extract its content into `ZeSTE/UI/server/zeste_cache` with:
 ```sh
 cd ZeSTE/UI/server
-tar -zxvf zeste_cache_tar.gz zeste_cache/
+tar -zxvf zeste_cache.tar.gz zeste_cache/
 ```
 1. Run the docker image:
 ```sh
