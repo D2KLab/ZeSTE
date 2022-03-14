@@ -125,7 +125,7 @@ def find_best_path(word, label, label_neighborhood, language):
         paths = []
         word_path = '/data/zeste_cache/demo_cache/'+ww+ ('.pickle' if language=='en' else '_fr.pickle')
         if label in label_neighborhood[ww]['from'] and os.path.exists(word_path):
-            nw = pickle.load(open(word_path), 'rb')
+            nw = pickle.load(open(word_path, 'rb'))
             if word in nw:
                 return (word, nw[word]['rels'][-1], ww, label_neighborhood[ww]['rels'][-1], label)
             else:
