@@ -62,6 +62,7 @@ resource_fields = api.model('Resource', {
     'text': fields.String(description='The text to extract (if `uri` is specified, this will be ignored)'),
     'language': fields.String(description='language of the text to extract (en, fr)', required=True),
     'labels': fields.String(description='semicolon-separated list of labels', required=True),
+    'disallowed_rels': fields.List(fields.String, description='list of relations to ignore', default=[]),
     'explain': fields.Boolean(description='return explanations for each prediction', default=False),
     'highlights': fields.Boolean(description='return highlights for each prediction', default=True)
 })
@@ -77,6 +78,7 @@ class predict_route(Resource):
         language = content['language']
         show_explanations = 'explain' in content and content['explain']
         show_highlights = 'highlights' in content and content['highlights']
+        disallowed_rels = content['disallowed_rels'] if 'disallowed_rels' in content else []
 
         if 'uri' in content:
             downloaded = trafilatura.fetch_url(content['uri'])
@@ -90,7 +92,7 @@ class predict_route(Resource):
         labels = content['labels'].split(';')
 
         # Process text with labels
-        response = predict(text, labels, language, show_explanations, show_highlights)
+        response = predict(text, labels, language, disallowed_rels, show_explanations, show_highlights)
 
         ### response looks like this ###
         ### (both the labels and the paths are sorted by score ###

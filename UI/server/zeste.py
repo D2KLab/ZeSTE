@@ -38,7 +38,7 @@ def preprocess(doc, language='en'):
     return tokens
 
 
-def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en'):
+def get_word_neighborhood(word, depth=2, allowed_rels='all', disallowed_rels=[], language='en'):
     neighborhood = pickle.load(open('/data/zeste_cache/neighborhoods_'+language+'/'+word+'.pickle', 'rb'))
     neighborhood_words = list(neighborhood.keys())
 
@@ -46,13 +46,19 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en'):
         for n in neighborhood_words:
             if all(rel not in neighborhood[n]['rels'] for rel in allowed_rels):
                 del neighborhood[n]
+    if len(disallowed_rels) > 0:
+        for n in neighborhood_words:
+            for rel in disallowed_rels:
+                if rel in neighborhood[n]['rels']:
+                    del neighborhood[n]
+
 
     to_visit_next = list(neighborhood.keys())
     while depth > 1:
         additions = []
         while len(to_visit_next) > 0:
             w = to_visit_next.pop()
-            nn = get_word_neighborhood(w, depth=1, allowed_rels=allowed_rels, language=language)
+            nn = get_word_neighborhood(w, depth=1, allowed_rels=allowed_rels, disallowed_rels=disallowed_rels, language=language)
             for ww in nn:
                 if ww in neighborhood:
                     neighborhood[ww]['from'].append(w)
@@ -75,14 +81,14 @@ def get_word_neighborhood(word, depth=2, allowed_rels='all', language='en'):
 
 
 
-def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'synonym'], language = 'en', keep='top20000'):
+def get_words_neighborhood(words, depth=2, allowed_rels='all', disallowed_rels=[], language = 'en', keep='top20000'):
     words = words.split('-')
     if len(words) > 50:
         raise Exception('Too many topic labels')
 
     ns = []
     for word in words:
-        ns.append(get_word_neighborhood(word, depth=depth, language=language))
+        ns.append(get_word_neighborhood(word, depth=depth, allowed_rels=allowed_rels, disallowed_rels=disallowed_rels, language=language))
     neighborhood = ns[0].copy()
 
     for w, nn in zip(words[1:], ns[1:]):
@@ -99,16 +105,19 @@ def get_words_neighborhood(words, depth=2, allowed_rels=['isa', 'relatedto', 'sy
 
     return neighborhood
 
-def generate_label_neighborhoods(labels_list, language):
+def generate_label_neighborhoods(labels_list, language, disallowed_rels):
+    disallowed_rels_string = ""
+    if len(disallowed_rels) > 0:
+        disallowed_rels_string += "_" + "-".join(sorted(disallowed_rels))
     label_neighborhoods = {}
     for label in labels_list:
-        path = '/data/zeste_cache/demo_cache/'+label+ ('.pickle' if  language == 'en' else '_fr.pickle')
+        path = '/data/zeste_cache/demo_cache/'+label + disallowed_rels_string + ('.pickle' if  language == 'en' else '_fr.pickle')
         if os.path.exists(path):
             logging.info('Loading cached neighborhood for the label "'+ label +'"')
             label_neighborhoods[label] = pickle.load(open(path, 'rb'))
         else:
             logging.info('Generating neighborhood for the label "'+ label +'"')
-            label_neighborhoods[label] = get_words_neighborhood(label, depth=2, allowed_rels='all', language=language)
+            label_neighborhoods[label] = get_words_neighborhood(label, depth=2, allowed_rels='all', disallowed_rels=disallowed_rels, language=language)
             pickle.dump(label_neighborhoods[label], open(path, 'wb'))
     return label_neighborhoods
 
@@ -189,10 +198,10 @@ def generate_json(explanation, doc, labels_neighborhoods, language, show_highlig
     return response
 
 
-def predict(doc, labels_list, language, show_explanations=False, show_highlights=True):
+def predict(doc, labels_list, language, disallowed_rels, show_explanations=False, show_highlights=True):
     global numberbatch
     numberbatch = numberbatch_fr if language == 'fr' else numberbatch_en
-    lns = generate_label_neighborhoods(labels_list, language)
+    lns = generate_label_neighborhoods(labels_list, language, disallowed_rels)
     res = {}
     for label in lns:
         res[label] = get_document_score_and_explain(doc, label, lns[label], language, show_explanations)
