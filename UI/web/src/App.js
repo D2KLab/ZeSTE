@@ -355,7 +355,7 @@ function App() {
     const dataset = datasets[language].find(dataset => dataset.name === selectedDataset);
     const datasetLabels = dataset ? dataset.labels : [];
     const params = {
-      labels: [...userLabels, ...datasetLabels].join(';'),
+      labels: [...userLabels, ...datasetLabels],
       language,
       explain: true,
     };
