@@ -23,13 +23,13 @@
 
 1. Run the docker image:
     ```sh
-    docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name mle-zeste d2klab/zeste_server
+    docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name zeste-server d2klab/zeste_server
     ```
     To disallow some relations, specify the `--disallowed-rels` parameter.
 
     Example with disallowing the "antonym" relation:
     ```sh
-    docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name mle-zeste d2klab/zeste_server --disallowed-rels "antonym"
+    docker run -p 5000:5000 -v "$(pwd)"/zeste_cache:/data/zeste_cache --name zeste-server d2klab/zeste_server --disallowed-rels "antonym"
     ```
 
 ### Parameters
