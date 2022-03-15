@@ -14,7 +14,7 @@ nltk.download('wordnet')
 numberbatch_en = pickle.load(open("/data/zeste_cache/numberbatch-en-19.08.pickle", 'rb'))
 numberbatch_fr = pickle.load(open("/data/zeste_cache/numberbatch-fr-19.08.pickle", 'rb'))
 
-print('Loading relations descriptions...')
+logging.info('Loading relations descriptions...')
 relations = {}
 relations_filepath = '/data/zeste_cache/relations_descriptions.txt'
 if os.path.exists(relations_filepath):
