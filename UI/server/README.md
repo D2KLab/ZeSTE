@@ -38,3 +38,15 @@
 | --- | --- |
 | -v, --verbose | Add extra verbose to the logging output |
 | --disallowed-rels | List of semicolon-separated relations that are disallowed (eg. `--disallowed-rels "antonym;motivatedbygoal"`. For a list of all relations, check `/zeste_cache/relations_descriptions.txt` |
+
+### Example
+
+```sh
+curl -XPOST 'http://localhost:5000/api/predict' -H'Content-Type: application/json' -d'{
+    "labels": ["business", "technology", "hardware", "software"],
+    "language": "en",
+    "text": "A NASA spacecraft set a new milestone Monday in cosmic exploration by entering orbit around an asteroid, Bennu, the smallest object ever to be circled by a human-made spaceship. The spacecraft, called OSIRIS-REx, is the first-ever US mission designed to visit an asteroid and return a sample of its dust back to Earth..",
+    "explain": false,
+    "highlights": false
+}'
+```
