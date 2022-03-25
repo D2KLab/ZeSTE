@@ -16,8 +16,7 @@
 1. Download [zeste_cache.tar.gz]() and extract its content into `ZeSTE/UI/server/zeste_cache` with:
     ```sh
     cd ZeSTE/UI/server
-    mkdir zeste_cache/
-    tar -zxvf zeste_cache.tar.gz -C zeste_cache/
+    tar -zxvf zeste_cache.tar.gz
     ```
     _You can now safely remove zeste_cache.tar.gz._
 
