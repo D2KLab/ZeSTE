@@ -18,15 +18,7 @@ ZeSTE can also be accessed via a RESTful API for easy deployment and use.
 For further information, please refer to the documentation: https://zeste.tools.eurecom.fr/doc
 
 ## Dependencies
-Before running any code in this repo, please install the following dependencies:
-* numpy
-* pandas
-* matplotlib
-* nltk
-* sklearn
-* tqdm
-* gensim
-
+Before running any code in this repo, please install the following dependencies which can be found in [requirements.txt](requirements.txt).
 
 ## Code Overview
 This repo is organized as follows:
