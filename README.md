@@ -7,7 +7,7 @@ This repository contains the code for reproducing the results reported in the pa
 A user-friendly demo is available at: http://zeste.tools.eurecom.fr/
 
 ## ZeSTE
-Based on ConceptNet's common sense knowledge graph and embeddings, ZeSTE generates explainable predictions for a document topical category (e.g. _politics_, _sports_, _video_games_ ..) without reliance on training data. 
+Based on ConceptNet's common sense knowledge graph and embeddings, ZeSTE generates explainable predictions for a document topical category (e.g. _politics_, _sports_, _video_games_ ..) without reliance on training data.
 The following is a high-level illustration of the approach:
 
 <div align="center"><img src="UI/images/zeste_pipeline.png"></div>
@@ -20,7 +20,7 @@ For further information, please refer to the documentation: https://zeste.tools.
 ## Dependencies
 Before running any code in this repo, please install the following dependencies:
 * numpy
-* pandas 
+* pandas
 * matplotlib
 * nltk
 * sklearn
@@ -68,7 +68,7 @@ optional arguments:
 
 
 ### 3. zeste.py
-This script uses the precomputed 1-hop label neighborhoods to recursively generate label neighborhoods of any given depth (`-d`). It takes also as parameters the path to the dataset CSV file (which should have two columns: `text` and `label`). The rest of the arguments are for model experimentation. 
+This script uses the precomputed 1-hop label neighborhoods to recursively generate label neighborhoods of any given depth (`-d`). It takes also as parameters the path to the dataset CSV file (which should have two columns: `text` and `label`). The rest of the arguments are for model experimentation.
 
 > ⚠️ If using a personalized dataset, make sure to create a proper `labels_mapping` file (multiword labels are comma-separated).
 
