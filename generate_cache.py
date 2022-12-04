@@ -61,7 +61,7 @@ for i, triplet in tqdm(cn.iterrows(), total=len(cn)):
 print('Loading Numberbatch embeddings (may take some time)..')
 numberbatch = KeyedVectors.load_word2vec_format(args.conceptnet_numberbatch_path)
 
-pickle.dump(numberbatch, open(os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1].replace('txt', '') +'.pickle'), 'wb'))
+pickle.dump(numberbatch, open(os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1].replace('.txt', '') +'.pickle'), 'wb'))
 print('Saving the pickled Numberbatch into', os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1]+'.pickle'))
 
 reverse_rels = { 'antonym': 'antonym',
