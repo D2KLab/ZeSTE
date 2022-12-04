@@ -45,7 +45,7 @@ The two following files need to be downloaded to bypass the use of ConceptNet's 
 wget https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
 wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-en-19.08.txt.gz
 gzip -d conceptnet-assertions-5.7.0.csv.gz
-gzip -d numberbatch-19.08.txt.gz
+gzip -d numberbatch-en-19.08.txt.gz
 rm *.gz
 ```
 
