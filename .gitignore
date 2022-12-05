@@ -1,1 +1,7 @@
 zeste_cache
+
+# Python cache
+__pycache__
+
+# macOS files
+.DS_Store
