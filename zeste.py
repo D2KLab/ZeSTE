@@ -29,6 +29,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print('Loading nltk..')
+    nltk.download('stopwords')
+    nltk.download('wordnet')
+    nltk.download('omw-1.4')
+
     ###
     #   Loading & Preprocessing Data
     ###
