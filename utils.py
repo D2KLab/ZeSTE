@@ -27,7 +27,7 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, 
         prefetch_folder = os.path.join(prefetch_path, str(depth))
         if not os.path.exists(prefetch_folder):
             print('Creating folder:', prefetch_folder)
-            os.mkdir(prefetch_folder)
+            os.makedirs(prefetch_folder, exist_ok=True)
         prefetch_pickle_path = os.path.join(prefetch_folder, label+'.pickle')
         if os.path.exists(prefetch_pickle_path):
             return pickle.load(open(prefetch_pickle_path, 'rb'))

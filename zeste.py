@@ -78,6 +78,7 @@ if __name__ == "__main__":
     probs_file_path = os.path.join(args.results_path, filename+'-probabilities.npy')
     report_file_path = os.path.join(args.results_path, filename+'-report.txt')
 
+    os.makedirs(args.results_path, exist_ok=True)
     np.save(open(predictions_file_path, 'wb'), predicted_labels)
     np.save(open(probs_file_path, 'wb'), predicted_probs)
 

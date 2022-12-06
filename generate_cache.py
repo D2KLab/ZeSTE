@@ -32,7 +32,7 @@ args = parser.parse_args()
 
 if not os.path.exists(args.zeste_cache_path):
     print('Caching folder (', args.zeste_cache_path,') not found.. creating it now.')
-    os.mkdir(args.zeste_cache_path)
+    os.makedirs(args.zeste_cache_path, exist_ok=True)
 
 
 data = []
