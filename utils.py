@@ -1,6 +1,7 @@
 import os
 import time
 import copy
+import hashlib
 import pickle
 import itertools
 import numpy as np
@@ -18,7 +19,9 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, save_to_prefetch = True):
     # In case the requested label does not appear in the cache
 
-    pickle_path = os.path.join(cache_path, label+'.pickle')
+    pickle_name = label + '.pickle'
+    md5name = hashlib.md5(pickle_name.encode('utf-8')).hexdigest()[:2]
+    pickle_path = os.path.join(cache_path, md5name, pickle_name)
     if depth == 0 or not os.path.exists(pickle_path) or label not in numberbatch:
         return {}
 
@@ -28,7 +31,7 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, 
         if not os.path.exists(prefetch_folder):
             print('Creating folder:', prefetch_folder)
             os.makedirs(prefetch_folder, exist_ok=True)
-        prefetch_pickle_path = os.path.join(prefetch_folder, label+'.pickle')
+        prefetch_pickle_path = os.path.join(prefetch_folder, md5name, pickle_name)
         if os.path.exists(prefetch_pickle_path):
             return pickle.load(open(prefetch_pickle_path, 'rb'))
 
@@ -86,6 +89,7 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, 
 
     # save
     if depth > 1 and save_to_prefetch:
+        os.makedirs(os.path.join(prefetch_folder, md5name), exist_ok=True)
         pickle.dump(neighborhood, open(prefetch_pickle_path, 'wb'))
 
     return neighborhood

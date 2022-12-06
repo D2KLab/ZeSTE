@@ -1,6 +1,7 @@
 import os
 import pickle
 import argparse
+import hashlib
 import pandas as pd
 from tqdm import tqdm
 from pprint import pprint
@@ -131,7 +132,10 @@ for i, e in tqdm(cn_en_all.iterrows(), total=len(cn_en_all)):
     assert(type(s) == str and type(s) == str)
     if s != current:
         try:
-            pickle.dump(neighbors, open(os.path.join(args.zeste_cache_path, current+'.pickle'), 'wb'))
+            filename = current + '.pickle'
+            filepath = os.path.join(args.zeste_cache_path, hashlib.md5(filename.encode('utf-8')).hexdigest()[:2])
+            os.makedirs(filepath, exist_ok=True)
+            pickle.dump(neighbors, open(os.path.join(filepath, filename), 'wb'))
         except Exception as e:
             print(f'Exception at word "{current}":', str(e))
         # print(current, "'s neighborhood:")
