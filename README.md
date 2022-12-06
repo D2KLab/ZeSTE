@@ -25,7 +25,7 @@ This repo is organized as follows:
 * `generate_cache.py`: this script processes the raw ConceptNet dump to produce cached files for each node in ConceptNet to accelerate the label neighborhood generation. It also transforms ConceptNet Numberbatch text file into a Gensim word embedding that we pickle for quick loading.
 * `zeste.py`: this is the main script for evaluation. It takes as argument the dataset to process as well as model configuration parameters such as neighborhood depth (see below). The results (classification report, confusion matrix, and classification metrics) are persisted into text files.
 * `util.py`: contains the functions that are used in `zeste.py`
-* `label_mappings`: contains the tab-separated mappings for the studied datasets.
+* `labels_mapping`: contains the tab-separated mappings for the studied datasets.
 
 ## Reproducing Results
 
