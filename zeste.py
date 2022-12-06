@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('-pp', '--prefetch_path', type=str, help="Path to where the precomputed n-hop neighborhoods are cached",
                         default='prefetch_cache')
     parser.add_argument('-nb', '--numberbatch_path', type=str, help="Path to the pickled Numberbatch",
-                        default='numberbatch-en-19.08.pickle')
+                        default='zeste_cache/numberbatch-en-19.08.pickle')
     parser.add_argument('-dp', '--dataset_path', type=str, help="Path to the dataset to process",
                         default='data/bbc_dataset.csv')
     parser.add_argument('-lm', '--labels_mapping', type=str, help="Path to the mapping between the dataset labels and ZeSTE labels (multiword labels are comma-separated)",
