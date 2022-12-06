@@ -10,18 +10,18 @@ import multiprocessing as mp
 import matplotlib.pyplot as plt
 
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer 
+from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, save_to_prefetch = True):
     # In case the requested label does not appear in the cache
-    
+
     pickle_path = os.path.join(cache_path, label+'.pickle')
     if depth == 0 or not os.path.exists(pickle_path) or label not in numberbatch:
         return {}
-    
+
     # if already computed
     if depth > 1:
         prefetch_folder = os.path.join(prefetch_path, str(depth))
@@ -40,7 +40,7 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, 
         # to the Label node
         neighborhood[node]['rels'] = [tuple(neighborhood[node]['rels'])]
         neighborhood[node]['sim'] = {sim:neighborhood[node]['sim'] for sim in similarities}
-    
+
     # Connect to n-hops labels
     hops = 1
     to_visit_next = list(neighborhood.keys())
@@ -59,7 +59,7 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, 
                     sim_dict = {sim: 0.0 for sim in similarities}
                 else:
                     sim_dict = neighborhood[word]['sim']
-                    
+
                 neighborhood[word]['from'].append(current_node)
                 neighborhood[word]['rels'].append(tuple(cnn[word]['rels']))
                 if word in numberbatch:
@@ -76,15 +76,15 @@ def get_word_neighborhood(label, depth, numberbatch, cache_path, prefetch_path, 
                     else:
                         sim_dict['compound'] = max(sim_dict['compound'], sim_label_word)
                         sim_dict['harmonized'] = max(sim_dict['harmonized'], sim_label_word)
-            
+
                 # print('From label' + label + '- current node:' + current_node + ', word:' + word)
                 neighborhood[word]['sim'] = sim_dict
                 next_hop.append(word)
-        
+
         hops += 1
         to_visit_next = next_hop
-        
-    # save 
+
+    # save
     if depth > 1 and save_to_prefetch:
         pickle.dump(neighborhood, open(prefetch_pickle_path, 'wb'))
 
@@ -97,7 +97,7 @@ def get_label_neighborhood(label_words, depth, numberbatch, cache_path, prefetch
     for word in words:
         ns.append(get_word_neighborhood(word, depth, numberbatch, cache_path, prefetch_path))
     neighborhood = ns[0].copy()
-    
+
     for current_node, cnn in zip(words[1:], ns[1:]):
         for word in cnn:
             if word in neighborhood:
@@ -118,20 +118,20 @@ def filter_neighborhoood(neighborhood_original, allowed_rels, sim, keep):
         return neighborhood_original
 
     neighborhood = copy.deepcopy(neighborhood_original)
-    
+
     if allowed_rels == 'related':
         allowed_rels = ['DefinedAs', 'DerivedFrom', 'HasA', 'InstanceOf', 'IsA', 'PartOf', 'RelatedTo', 'SimilarTo', 'Synonym', 'Antonym']
-    
+
     if ',' in allowed_rels:
         allowed_rels = allowed_rels.split(',')
-    
+
     if allowed_rels != 'all':
         nodes = list(neighborhood.keys())
         for node in nodes:
             if not any(rel in rels[0] for rel in allowed_rels for rels in neighborhood[node]['rels']):
                 del neighborhood[node]
                 continue
-    
+
     if keep != 'all':
         all_scores = sorted([neighborhood[node]['sim'][sim] for node in neighborhood], reverse=True)
         if keep.startswith('top') and keep.endswith('%'):
@@ -161,7 +161,7 @@ def preprocess(document):
     return document
 
 
-def score(tokens, label_neighborhood, sim, ngrams, normalize):   
+def score(tokens, label_neighborhood, sim, ngrams, normalize):
     if ngrams:
         doc = ' '.join(tokens)
         for ngram in ngrams:
@@ -172,16 +172,16 @@ def score(tokens, label_neighborhood, sim, ngrams, normalize):
     for token in tokens:
         if token in label_neighborhood:
             score += label_neighborhood[token]['sim'][sim]
-            inter += 1 
-            
+            inter += 1
+
     if normalize == 'inter_len':
         score = score / max(inter, 1)
     elif normalize == 'max_score':
         score = score / sum([label_neighborhood[node]['sim'][sim] for node in label_neighborhood])
 
     return round(score, 6)
-    
-    
+
+
 def predict_dataset(docs, sorted_labels, labels_neighborhoods, sim, ngrams, normalize='max_score'):
     scores = np.zeros((len(docs), len(sorted_labels)))
     for i, doc in enumerate(docs):
@@ -200,13 +200,13 @@ def evaluate(predicted_labels, gt_labels, labels_mapping):
                 gt_labels[i] = corrert_labels[0]
     else:
         gt_labels = [labels_mapping[l] for l in gt_labels]
-    
-        
+
+
     acc = accuracy_score(predicted_labels, gt_labels)
     pre = precision_score(predicted_labels, gt_labels, average='weighted')
     rec = recall_score(predicted_labels, gt_labels, average='weighted')
     f1  = f1_score(predicted_labels, gt_labels, average='weighted')
     cm  = confusion_matrix(predicted_labels, gt_labels)
-        
+
     cr  = classification_report(predicted_labels, gt_labels)
     return acc, pre, rec, f1, cm, cr
