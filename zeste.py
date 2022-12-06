@@ -13,9 +13,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Zero-Shot Topic Extraction')
 
     parser.add_argument("-cp", "--cache_path", type=str, help="Path to where the 1-hop word neighborhoods are cached",
-                        default='zeste_cache', required=True)
+                        default='zeste_cache')
     parser.add_argument('-pp', '--prefetch_path', type=str, help="Path to where the precomputed n-hop neighborhoods are cached",
-                        required=True)
+                        default='prefetch_cache')
     parser.add_argument('-nb', '--numberbatch_path', type=str, help="Path to the pickled Numberbatch",
                         default='numberbatch-en-19.08.pickle')
     parser.add_argument('-dp', '--dataset_path', type=str, help="Path to the dataset to process",
