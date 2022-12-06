@@ -41,7 +41,7 @@ if __name__ == "__main__":
     #   Loading & Preprocessing Data
     ###
 
-    print('Laading numberbatch..')
+    print('Loading numberbatch..')
     numberbatch = pickle.load(open(args.numberbatch_path, 'rb'))
 
     df_dataset = pd.read_csv(args.dataset_path)
