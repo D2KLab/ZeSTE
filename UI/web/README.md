@@ -6,6 +6,10 @@
 npm i
 ```
 
+Copy `.env.example` into `.env` and edit the variables:
+
+* `REACT_APP_SERVER_URL` - URL to ZeSTE API server. (eg.: `https://zeste.tools.eurecom.fr/api`)
+
 # Run
 
 Runs the app in the development mode.\
