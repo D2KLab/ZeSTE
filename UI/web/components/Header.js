@@ -66,7 +66,7 @@ export default function Header() {
       </MobileTitle>
       <Menu>
         <Link href="/predict">Predict</Link>
-        <Link href="/labels">Labels</Link>
+        {/* <Link href="/labels">Labels</Link> */}
         <a href="https://github.com/D2KLab/ZeSTE" target="_blank" rel="noopener noreferrer">
           <GithubIcon height="1rem" /> GitHub
         </a>

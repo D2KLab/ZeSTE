@@ -6,7 +6,7 @@ module.exports = {
   async rewrites() {
     return [{
       source: '/',
-      destination: '/labels',
+      destination: '/predict',
     }]
   },
 }
