@@ -2,8 +2,9 @@ from fast_autocomplete import AutoComplete
 from flask import Flask, jsonify, request, Blueprint
 from flask_cors import CORS, cross_origin
 from zeste import predict
+import argparse
 import os
-import json
+import logging
 import trafilatura
 
 import werkzeug
@@ -11,7 +12,16 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 from flask_restx import Resource, Api, fields
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-print('Loading autocomplete vocabulary...')
+
+parser = argparse.ArgumentParser(description='ZeSTE server')
+parser.add_argument('--disallowed-rels', help='List of semicolon-separated relations that are disallowed', default='')
+parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
+args = parser.parse_args()
+if args.verbose:
+    logging.basicConfig(level=logging.DEBUG)
+logging.debug('Args:', args)
+
+logging.info('Loading autocomplete vocabulary...')
 words_en = {}
 vocab_filepath = '/data/zeste_cache/vocab.txt'
 if os.path.exists(vocab_filepath):
@@ -30,7 +40,7 @@ if os.path.exists(vocab_filepath):
         words_fr[line.strip()] = {}
 autocomplete_fr = AutoComplete(words=words_fr)
 
-print('Starting web server...')
+logging.info('Starting web server...')
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 api = Api(app, doc='/doc')
@@ -58,9 +68,13 @@ class autocomplete_route(Resource):
         return jsonify(suggestions)
 
 resource_fields = api.model('Resource', {
-    'uri': fields.String,
-    'text': fields.String,
-    'labels': fields.String
+    'uri': fields.String(description='The URL to a page to extract text and return predictions for (if specified, `text` will be ignored)'),
+    'text': fields.String(description='The text to extract (if `uri` is specified, this will be ignored)'),
+    'language': fields.String(description='language of the text to extract (en, fr)', required=True),
+    'labels': fields.List(fields.String, description='semicolon-separated list of labels', required=True),
+    'disallowed_rels': fields.List(fields.String, description='list of relations to ignore', default=[]),
+    'explain': fields.Boolean(description='return explanations for each prediction', default=False),
+    'highlights': fields.Boolean(description='return highlights for each prediction', default=True)
 })
 
 @ns.route('/predict', methods=['POST'])
@@ -69,10 +83,13 @@ class predict_route(Resource):
     @ns.doc('predict_route')
     def post(self):
         content = request.json
-        print(content)
+        logging.debug(content)
 
         language = content['language']
-        
+        show_explanations = 'explain' in content and content['explain']
+        show_highlights = 'highlights' in content and content['highlights']
+        disallowed_rels = content['disallowed_rels'] if 'disallowed_rels' in content else args.disallowed_rels.split(';')
+
         if 'uri' in content:
             downloaded = trafilatura.fetch_url(content['uri'])
             if downloaded is None:
@@ -82,10 +99,10 @@ class predict_route(Resource):
             text = content['text']
 
         # Process text with labels...
-        labels = content['labels'].split(';')
+        labels = content['labels']
 
         # Process text with labels
-        response = predict(text, labels, language)
+        response = predict(text, labels, language, disallowed_rels, show_explanations, show_highlights)
 
         ### response looks like this ###
         ### (both the labels and the paths are sorted by score ###
@@ -124,4 +141,4 @@ def default_error_handler(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=os.getenv('FLASK_RUN_HOST'), port=os.getenv('FLASK_RUN_PORT'), debug=os.getenv('FLASK_DEBUG') == 'development')

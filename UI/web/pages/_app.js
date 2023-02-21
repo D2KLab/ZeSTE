@@ -1,7 +1,7 @@
 import { ThemeProvider } from 'styled-components';
 import Head from 'next/head';
 
-import GlobalStyle from '../src/globalStyle';
+import GlobalStyle from '../globalStyle';
 
 const theme = {
   colors: {

@@ -1,6 +1,7 @@
 import os
 import pickle
 import argparse
+import hashlib
 import pandas as pd
 from tqdm import tqdm
 from pprint import pprint
@@ -15,7 +16,7 @@ parser = argparse.ArgumentParser(description='Zero-Shot Topic Extraction')
 
 parser.add_argument("-cnp", "--conceptnet_assertions_path", type=str, help="Path to CSV file containing ConceptNet assertions dump", default='conceptnet-assertions-5.7.0.csv')
 parser.add_argument("-nbp", "--conceptnet_numberbatch_path", type=str, help="Path to W2V file for ConceptNet Numberbatch",  default='numberbatch-en-19.08.txt')
-parser.add_argument("-zcp", "--zeste_cache_path", type=str, help="Path to the repository where the generated files will be saved", default='zeste_cache/') 
+parser.add_argument("-zcp", "--zeste_cache_path", type=str, help="Path to the repository where the generated files will be saved", default='zeste_cache/')
 
 args = parser.parse_args()
 
@@ -29,18 +30,24 @@ args = parser.parse_args()
 # wc -l conceptnet-assertions-5.7.0.csv
 # wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-19.08.txt.gz
 
+
+if not os.path.exists(args.zeste_cache_path):
+    print('Caching folder (', args.zeste_cache_path,') not found.. creating it now.')
+    os.makedirs(args.zeste_cache_path, exist_ok=True)
+
+
 data = []
 print('Reading ConceptNet assertions..')
-with open(args.conceptnet_assertions_path, 'r') as f: 
+with open(args.conceptnet_assertions_path, 'r') as f:
     for line in f:
         triplet, rel, sub, obj, info = line.split('\t')
         data.append((sub, rel, obj))
-        if len(data) == 10000: break
+        # if len(data) == 30000: break
 
 cn = pd.DataFrame(data=data, columns=['subject', 'relation', 'object'])
 # cn.to_csv('conceptnet_5.7.0.csv')
 
-print('Loading ConceptNet assertios..')
+print('Loading ConceptNet assertions..')
 data_en = []
 for i, triplet in tqdm(cn.iterrows(), total=len(cn)):
     lang = triplet.subject.split('/')[2]
@@ -54,7 +61,10 @@ for i, triplet in tqdm(cn.iterrows(), total=len(cn)):
 
 print('Loading Numberbatch embeddings (may take some time)..')
 numberbatch = KeyedVectors.load_word2vec_format(args.conceptnet_numberbatch_path)
-pickle.dump(numberbatch, open(os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1]+'.pickle'), 'wb'))
+
+numberbatch_cache_path = os.path.join(args.zeste_cache_path, args.conceptnet_numberbatch_path.split('/')[-1].replace('.txt', '') +'.pickle')
+pickle.dump(numberbatch, open(numberbatch_cache_path, 'wb'))
+print('Saving the pickled Numberbatch into', numberbatch_cache_path)
 
 reverse_rels = { 'antonym': 'antonym',
                  'atlocation': 'locatedat',
@@ -108,30 +118,31 @@ data_rev = set()
 
 print('Adding reverse relations to the graph if absent..')
 for s, r, o in tqdm(data_en):
-    if r == 'externalurl': 
+    if r == 'externalurl':
         continue
     data_rev.add((s, r, o))
     data_rev.add((o, reverse_rels[r], s))
 
-cn_en = pd.DataFrame(data=sorted(data_rev, key=lambda x: x[0]), columns=['subject', 'relation', 'object'])
+cn_en_all = pd.DataFrame(data=sorted(data_rev, key=lambda x: x[0]), columns=['subject', 'relation', 'object'])
 current = '0'
 neighbors = {current: {'rels':['sameas'], 'sim': 1., 'from': [current]}}
 
-print(cn_en.head())
-
-for i, e in tqdm(cn_en.iterrows(), total=len(cn_en)):
+for i, e in tqdm(cn_en_all.iterrows(), total=len(cn_en_all)):
     s, r, o = e['subject'], e['relation'], e['object']
     assert(type(s) == str and type(s) == str)
     if s != current:
         try:
-            pickle.dump(neighbors, open(os.path.join(args.zeste_cache_path, current+'.pickle'), 'wb'))
+            filename = current + '.pickle'
+            filepath = os.path.join(args.zeste_cache_path, hashlib.md5(filename.encode('utf-8')).hexdigest()[:2])
+            os.makedirs(filepath, exist_ok=True)
+            pickle.dump(neighbors, open(os.path.join(filepath, filename), 'wb'))
         except Exception as e:
             print(f'Exception at word "{current}":', str(e))
         # print(current, "'s neighborhood:")
         # pprint(neighbors)
         current = s
         neighbors = {current: {'rels':['sameas'], 'sim': 1., 'from': [current]}}
-    
+
     if o not in neighbors: # adding a new neighbor to the neighborhood
         neighbors[o] = {'rels':[r], 'sim': 0., 'from': [s]}
         if s in numberbatch and o in numberbatch:

@@ -1,5 +1,0 @@
-business	business
-entertainment	entertainment
-sport	sport
-politics	politics
-tech	technology

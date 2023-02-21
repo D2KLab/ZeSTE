@@ -1,0 +1,10 @@
+Family & Relationships	family;relationships
+Entertainment & Music	entertainment;music
+Society & Culture	society;culture
+Computers & Internet	computer;internet
+Health	health
+Business & Finance	business;finance
+Education & Reference	education;reference
+Science & Mathematics	science;mathematics
+Politics & Government	politics;government
+Sports	sports
