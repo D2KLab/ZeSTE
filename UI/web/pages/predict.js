@@ -292,7 +292,7 @@ function PredictPage({ reactAppServerUrl }) {
     const dataset = datasets[language].find(dataset => selectedDataset && dataset.name === selectedDataset.value);
     const datasetLabels = dataset ? dataset.labels : [];
     const params = {
-      labels: [...userLabels, ...datasetLabels].join(';'),
+      labels: [...userLabels, ...datasetLabels],
       language,
     };
     if (inputURL.length > 0) {
