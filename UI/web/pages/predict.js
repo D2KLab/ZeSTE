@@ -8,7 +8,7 @@ import { TagFill as TagFillIcon } from '@styled-icons/bootstrap/TagFill';
 import { Text as TextIcon } from '@styled-icons/entypo/Text';
 import { ArrowLeftShort as ArrowLeftShortIcon } from '@styled-icons/bootstrap/ArrowLeftShort';
 import { Hyperledger as HyperledgerIcon } from '@styled-icons/simple-icons/Hyperledger';
-import { useMenuState, Menu, MenuItem, MenuButton } from 'reakit/Menu';
+import { useMenuState, Menu, MenuItem, MenuButton } from 'ariakit/menu';
 import ReactCountryFlag from 'react-country-flag';
 import { Show as ShowIcon } from '@styled-icons/boxicons-regular/Show';
 import { Hide as HideIcon } from '@styled-icons/boxicons-regular/Hide';
@@ -478,9 +478,9 @@ function PredictPage({ reactAppServerUrl }) {
 
             <div>
               <form onSubmit={(ev) => ev.preventDefault()} style={{ display: 'flex' }}>
-                <StyledMenu {...languageMenu} tabIndex={0} aria-label="Preferences">
+                <StyledMenu state={languageMenu} tabIndex={0} aria-label="Preferences">
                 <StyledMenuItem
-                    {...languageMenu}
+                    state={languageMenu}
                     key={"en"}
                     className={language === 'en' ? 'selected' : ''}
                     onClick={() => {
@@ -492,7 +492,7 @@ function PredictPage({ reactAppServerUrl }) {
                     <ReactCountryFlag countryCode="US" svg />
                   </StyledMenuItem>
                   <StyledMenuItem
-                    {...languageMenu}
+                    state={languageMenu}
                     key={"fr"}
                     className={language === 'fr' ? 'selected' : ''}
                     onClick={() => {
@@ -505,7 +505,7 @@ function PredictPage({ reactAppServerUrl }) {
                   </StyledMenuItem>
                 </StyledMenu>
                 <FlagButton
-                  {...languageMenu}
+                  state={languageMenu}
                   name="language"
                 >
                   <ReactCountryFlag countryCode={language === 'fr' ? 'FR' : 'US'} svg />

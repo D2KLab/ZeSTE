@@ -65,8 +65,8 @@ export default function Header() {
         <img src={Lemon.src} alt="Logo" style={{ verticalAlign: 'middle' }} />
       </MobileTitle>
       <Menu>
-        <Link href="/predict"><a>Predict</a></Link>
-        <Link href="/labels"><a>Labels</a></Link>
+        <Link href="/predict">Predict</Link>
+        <Link href="/labels">Labels</Link>
         <a href="https://github.com/D2KLab/ZeSTE" target="_blank" rel="noopener noreferrer">
           <GithubIcon height="1rem" /> GitHub
         </a>
