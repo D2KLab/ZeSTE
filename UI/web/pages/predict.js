@@ -450,14 +450,15 @@ function PredictPage({ reactAppServerUrl }) {
                 <Input value={inputURL} onChange={(ev) => setInputURL(ev.target.value)} type="url" placeholder="https://example.com" pattern="https://.*" style={{ width: 400 }} />
               </div>
 
-              <h2>Or enter the text for which you want to extract topics</h2>
-
               {inputURL.length === 0 && (
-                <div>
-                  <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
-                </div>
+                <>
+                  <h2>Or enter the text for which you want to extract topics</h2>
+                  <div>
+                    <Textarea value={inputText} onChange={(ev) => setInputText(ev.target.value)} />
+                  </div>
+                </>
               ) || (
-                <div style={{ marginBottom: '1.5em' }}>
+                <div style={{ marginTop: '1.5em', marginBottom: '1.5em' }}>
                   <SecondaryButton onClick={() => setInputURL('')}>Click to use text instead of URL</SecondaryButton>
                 </div>
               )}
