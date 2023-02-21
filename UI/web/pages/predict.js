@@ -294,6 +294,8 @@ function PredictPage({ reactAppServerUrl }) {
     const params = {
       labels: [...userLabels, ...datasetLabels],
       language,
+      explain: true,
+      highlights: true,
     };
     if (inputURL.length > 0) {
       params.uri = inputURL;
