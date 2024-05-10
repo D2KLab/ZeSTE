@@ -13,7 +13,7 @@
 
 ## How to run
 
-1. Download [zeste_cache.tar.gz]() and extract its content into `ZeSTE/UI/server/zeste_cache` with:
+1. Generate the cache by [following the instructions](https://github.com/D2KLab/ZeSTE?tab=readme-ov-file#reproducing-results), or download [zeste_cache.tar.gz]() and extract its content into `ZeSTE/UI/server/zeste_cache` with:
     ```sh
     cd ZeSTE/UI/server
     tar -zxvf zeste_cache.tar.gz
